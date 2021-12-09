@@ -1,4 +1,7 @@
 from random import randint
+import pygame as pg
+
+pg.init()
 
 def Fleury_and_bott(monnaie: int) -> dict:
     """
