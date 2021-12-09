@@ -26,3 +26,27 @@ print(Fleury_and_bott(60))
 print(Fleury_and_bott(63))
 print(Fleury_and_bott(231))
 print(Fleury_and_bott(899))
+
+
+def Guipure(rendu:int) -> dict:
+    assert type(rendu) == int
+
+    caisse_dispo = {200 : 1, 100 : 3, 50 : 1 , 20 : 1, 10: 1, 2 :5}
+    rendu_caisse ={200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
+    
+    for thune in caisse_dispo:
+        while rendu >= thune:
+            rendu -= thune
+            rendu_caisse[thune] += 1
+    
+    return rendu_caisse
+
+
+print(Guipure(0))
+print(Guipure(8))
+print(Guipure(62))
+print(Guipure(231))
+print(Guipure(497))
+print(Guipure(842))
+
+
