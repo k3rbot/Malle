@@ -61,9 +61,6 @@ print(Fleury_and_bott(60))
 print(Fleury_and_bott(63))
 print(Fleury_and_bott(231))
 print(Fleury_and_bott(899))
-<<<<<<< HEAD
-pg.time.wait(10000)
-=======
 
 
 def Guipure(rendu:int) -> dict:
@@ -88,4 +85,3 @@ print(Guipure(497))
 print(Guipure(842))
 
 
->>>>>>> d04042180296e36452720e8e0bd1fb2e3e59388d
