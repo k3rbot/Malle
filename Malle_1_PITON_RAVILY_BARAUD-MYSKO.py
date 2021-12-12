@@ -1,6 +1,7 @@
 import os
+from typing import NoReturn
 import pygame as pg
-from pygame import mouse
+from pygame.constants import K_0, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_BACKSPACE, K_ESCAPE, K_KP0, K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9, K_KP_ENTER, K_RETURN, KEYDOWN, QUIT
 
 pg.init()
 
@@ -25,6 +26,7 @@ orange = (255, 140, 0)
 
 # On utilise une police d"écriture spécifique
 font = "HarryPotterFont.ttf"
+Font = pg.font.Font(font, 20)
 # On charge l'image du chemin de traverse
 img_chemin = pg.image.load("chemin_de_traverse.png")
 
@@ -60,7 +62,7 @@ flourish_and_blotts_cords = (
 flourish_and_blotts_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 flourish_and_blotts_rect = pg.draw.polygon(flourish_and_blotts_poly, transparent_yellow, flourish_and_blotts_cords)
 
-guipure_cords = (
+malkin_cords = (
     (294, 804), (295, 503), (291, 482), (286, 468),
     (309, 431), (319, 425), (400, 424), (412, 432),
     (417, 446), (423, 469), (424, 496), (436, 502),
@@ -70,8 +72,8 @@ guipure_cords = (
     (444, 729), (439, 735), (438, 750), (372, 756),
     (373, 777), (338, 802), (317, 803), (307, 809)
 )
-guipure_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
-guipure_rect = pg.draw.polygon(guipure_poly, transparent_yellow, guipure_cords)
+malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
 
 def flourish_and_blotts(monnaie: int) -> dict:
     """
@@ -101,7 +103,7 @@ print(flourish_and_blotts(231))
 print(flourish_and_blotts(899))
 
 
-def Guipure(rendu:int) -> dict:
+def malkin(rendu:int) -> dict:
     assert type(rendu) == int
 
     caisse_dispo = {200 : 1, 100 : 3, 50 : 1 , 20 : 1, 10: 1, 2 :5}
@@ -115,18 +117,70 @@ def Guipure(rendu:int) -> dict:
     return rendu_caisse
 
 
-print(Guipure(0))
-print(Guipure(8))
-print(Guipure(62))
-print(Guipure(231))
-print(Guipure(497))
-print(Guipure(842))
+print(malkin(0))
+print(malkin(8))
+print(malkin(62))
+print(malkin(231))
+print(malkin(497))
+print(malkin(842))
+
+def user_entry(nb):
+    for event in pg.event.get():
+        if event.type == QUIT:
+            pg.quit()
+            quit()
+        elif event.type == KEYDOWN:
+            if event.key == K_KP0:
+                nb += '0'
+            elif event.key == K_KP1:
+                nb += '1'
+            elif event.key == K_KP2:
+                nb += '2'
+            elif event.key == K_KP3:
+                nb += '3'
+            elif event.key == K_KP4:
+                nb += '4'
+            elif event.key == K_KP5:
+                nb += '5'
+            elif event.key == K_KP6:
+                nb += '6'
+            elif event.key == K_KP7:
+                nb += '7'
+            elif event.key == K_KP8:
+                nb += '8'
+            elif event.key == K_KP9:
+                nb += '9'
+            elif event.key == K_BACKSPACE:
+                nb = nb[:-1]
+            elif (event.key == K_RETURN or event.key == K_KP_ENTER) and nb != '':
+                nb += '\n'
+    return nb
+
+def ollivander_shop():
+    Font = pg.font.Font(font, 80)
+    shop_img = pg.image.load("ollivander_shop.jpg")
+    nb = ''
+    while not(pg.event.peek(K_ESCAPE)):
+        screen.blit(shop_img, (0, 0))
+        nb = user_entry(nb)
+        if nb[-1:] == '\n':
+            print(flourish_and_blotts(int(nb[:-1])))
+            nb = ''
+        nb_text = Font.render(nb, 0, yellow)
+        nb_text_rect = nb_text.get_rect()
+        screen.blit(nb_text, (817 - (nb_text_rect[2]/2), 400))
+        pg.display.update()
+        clock.tick(FPS)
+
+def flourish_and_blotts_shop():
+    shop_img = pg.image.load("flourish_and_blotts_shop.jpg")
+
+def malkin_shop():
+    shop_img = pg.image.load("malkin_sshop.jpg")
 
 def description(mouse_pos, shop):
-    Font = pg.font.Font(font, 20)
-    shop_text = Font.render(shop, 1, violet)
+    shop_text = Font.render(shop, 0, violet)
     shop_text_rect = shop_text.get_rect()
-    print(shop_text_rect)
     if shop_text_rect[2] + mouse_pos[0] + 26 <= 1624:
         pg.draw.rect(screen, black, (mouse_pos[0] + 12, mouse_pos[1] + 2, shop_text_rect[2] + 11, 36))
         pg.draw.rect(screen, white, (mouse_pos[0] + 10, mouse_pos[1], shop_text_rect[2] + 15, 40), width=3)
@@ -137,26 +191,24 @@ def description(mouse_pos, shop):
         screen.blit(shop_text, (mouse_pos[0] - shop_text_rect[2] - 15, mouse_pos[1] + 10))
 
 def alley(mouse_pos):
-    for event in pg.event.get():
-        if event.type == pg.MOUSEBUTTONDOWN :
-            print(pg.mouse.get_pos())
-        if event.type == pg.QUIT:
-            pg.quit()
-            quit()
-    
     # On affiche l'image du chemin de traverse
     screen.blit(img_chemin, (0, 0))
-
     # On surligne le magasin si on a la souris dessus
     if ollivander_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
         description(mouse_pos, "Ollivander")
+        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+            ollivander_shop()
     elif flourish_and_blotts_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(flourish_and_blotts_poly, (0, 0))
         description(mouse_pos, "Flourish and Blotts")
-    elif guipure_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(guipure_poly, (0, 0))
+        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+            flourish_and_blotts_shop()
+    elif malkin_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+        screen.blit(malkin_poly, (0, 0))
         description(mouse_pos, "Madam Malkin's Robes for All Occasions")
+        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+            malkin_shop()
 
 # Affichage du nombre de FPS -- TEMPORAIRE
 def update_fps():
@@ -169,16 +221,12 @@ def main():
     prev_mouse_pos = [0, 0]
     while 1:
         for event in pg.event.get():
-            if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
+            if event.type == QUIT or (event.key == K_ESCAPE if event.type == KEYDOWN else 0):
                 pg.quit()
                 quit()
-        
-        # Si la position de la souris n'a pas changé, on n'a pas besoin de refaire une frame
-        mouse_pos = pg.mouse.get_pos()
-        if prev_mouse_pos != mouse_pos:
-            alley(mouse_pos)
-            prev_mouse_pos = mouse_pos
-        
+
+        alley(pg.mouse.get_pos())
+
         screen.blit(update_fps(), (10,0))
         pg.display.update()
         clock.tick(FPS)
