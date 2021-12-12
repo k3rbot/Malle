@@ -154,21 +154,26 @@ def user_entry(nb):
                 nb = nb[:-1]
             elif (event.key == K_RETURN or event.key == K_KP_ENTER) and nb != '':
                 nb += '\n'
+            elif event.key == K_ESCAPE:
+                nb = 'QUIT'
     return nb
 
 def ollivander_shop():
     Font = pg.font.Font(font, 80)
     shop_img = pg.image.load("ollivander_shop.jpg")
     nb = ''
-    while not(pg.event.peek(K_ESCAPE)):
+    while 1:
         screen.blit(shop_img, (0, 0))
         nb = user_entry(nb)
-        if nb[-1:] == '\n':
+        if nb == 'QUIT':
+            break
+        elif nb[-1:] == '\n':
             print(flourish_and_blotts(int(nb[:-1])))
             nb = ''
         nb_text = Font.render(nb, 0, yellow)
         nb_text_rect = nb_text.get_rect()
         screen.blit(nb_text, (817 - (nb_text_rect[2]/2), 400))
+        screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
         clock.tick(FPS)
 
@@ -176,7 +181,7 @@ def flourish_and_blotts_shop():
     shop_img = pg.image.load("flourish_and_blotts_shop.jpg")
 
 def malkin_shop():
-    shop_img = pg.image.load("malkin_sshop.jpg")
+    shop_img = pg.image.load("malkin_shop.jpg")
 
 def description(mouse_pos, shop):
     shop_text = Font.render(shop, 0, violet)
@@ -210,7 +215,7 @@ def alley(mouse_pos):
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             malkin_shop()
 
-# Affichage du nombre de FPS -- TEMPORAIRE
+# Affichage du nombre de FPS -- TEMPORAIRE ###########
 def update_fps():
     Font = pg.font.SysFont("Arial", 18)
     fps = str(int(clock.get_fps()))
@@ -218,7 +223,6 @@ def update_fps():
     return fps_text
 
 def main():
-    prev_mouse_pos = [0, 0]
     while 1:
         for event in pg.event.get():
             if event.type == QUIT or (event.key == K_ESCAPE if event.type == KEYDOWN else 0):
