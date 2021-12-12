@@ -48,7 +48,7 @@ ollivander_cords = (
 ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 ollivander_rect = pg.draw.polygon(ollivander_poly, transparent_yellow, ollivander_cords)
 
-fleury_and_bott_cords = (
+flourish_and_blotts_cords = (
     (1243, 451), (1426, 381), (1456, 338), (1486, 308),
     (1523, 279), (1558, 256), (1621, 239), (1622, 859),
     (1578, 847), (1578, 837), (1522, 833), (1283, 790),
@@ -57,8 +57,8 @@ fleury_and_bott_cords = (
     (1255, 472), (1252, 467), (1249, 467), (1244, 458),
     (1241, 447)
 )
-fleury_and_bott_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
-fleury_and_bott_rect = pg.draw.polygon(fleury_and_bott_poly, transparent_yellow, fleury_and_bott_cords)
+flourish_and_blotts_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+flourish_and_blotts_rect = pg.draw.polygon(flourish_and_blotts_poly, transparent_yellow, flourish_and_blotts_cords)
 
 guipure_cords = (
     (294, 804), (295, 503), (291, 482), (286, 468),
@@ -73,7 +73,7 @@ guipure_cords = (
 guipure_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 guipure_rect = pg.draw.polygon(guipure_poly, transparent_yellow, guipure_cords)
 
-def Fleury_and_bott(monnaie: int) -> dict:
+def flourish_and_blotts(monnaie: int) -> dict:
     """
     Fonction permettant de savoir le nombre de
     billets/pièces à rendre pour un montant donné
@@ -94,11 +94,11 @@ def Fleury_and_bott(monnaie: int) -> dict:
 
     return monnaie_rendue
 
-print(Fleury_and_bott(0))
-print(Fleury_and_bott(60))
-print(Fleury_and_bott(63))
-print(Fleury_and_bott(231))
-print(Fleury_and_bott(899))
+print(flourish_and_blotts(0))
+print(flourish_and_blotts(60))
+print(flourish_and_blotts(63))
+print(flourish_and_blotts(231))
+print(flourish_and_blotts(899))
 
 
 def Guipure(rendu:int) -> dict:
@@ -122,6 +122,20 @@ print(Guipure(231))
 print(Guipure(497))
 print(Guipure(842))
 
+def description(mouse_pos, shop):
+    Font = pg.font.Font(font, 20)
+    shop_text = Font.render(shop, 1, violet)
+    shop_text_rect = shop_text.get_rect()
+    print(shop_text_rect)
+    if shop_text_rect[2] + mouse_pos[0] + 26 <= 1624:
+        pg.draw.rect(screen, black, (mouse_pos[0] + 12, mouse_pos[1] + 2, shop_text_rect[2] + 11, 36))
+        pg.draw.rect(screen, white, (mouse_pos[0] + 10, mouse_pos[1], shop_text_rect[2] + 15, 40), width=3)
+        screen.blit(shop_text, (mouse_pos[0] + 15, mouse_pos[1] + 10))
+    else :
+        pg.draw.rect(screen, black, (mouse_pos[0] - shop_text_rect[2] - 22, mouse_pos[1] + 2, shop_text_rect[2] + 16, 36))
+        pg.draw.rect(screen, white, (mouse_pos[0] - shop_text_rect[2] - 25, mouse_pos[1], shop_text_rect[2] + 20, 40), width=3)
+        screen.blit(shop_text, (mouse_pos[0] - shop_text_rect[2] - 15, mouse_pos[1] + 10))
+
 def alley(mouse_pos):
     for event in pg.event.get():
         if event.type == pg.MOUSEBUTTONDOWN :
@@ -136,17 +150,20 @@ def alley(mouse_pos):
     # On surligne le magasin si on a la souris dessus
     if ollivander_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
-    elif fleury_and_bott_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(fleury_and_bott_poly, (0, 0))
+        description(mouse_pos, "Ollivander")
+    elif flourish_and_blotts_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+        screen.blit(flourish_and_blotts_poly, (0, 0))
+        description(mouse_pos, "Flourish and Blotts")
     elif guipure_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(guipure_poly, (0, 0))
+        description(mouse_pos, "Madam Malkin's Robes for All Occasions")
 
 # Affichage du nombre de FPS -- TEMPORAIRE
-font = pg.font.SysFont("Arial", 18)
 def update_fps():
-	fps = str(int(clock.get_fps()))
-	fps_text = font.render(fps, 1, pg.Color("coral"))
-	return fps_text
+    Font = pg.font.SysFont("Arial", 18)
+    fps = str(int(clock.get_fps()))
+    fps_text = Font.render(fps, 1, pg.Color("coral"))
+    return fps_text
 
 def main():
     prev_mouse_pos = [0, 0]
