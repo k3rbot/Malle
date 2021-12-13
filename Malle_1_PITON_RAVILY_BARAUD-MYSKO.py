@@ -1,7 +1,7 @@
 import os
 from typing import NoReturn
 import pygame as pg
-from pygame.constants import K_0, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_BACKSPACE, K_ESCAPE, K_KP0, K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9, K_KP_ENTER, K_RETURN, KEYDOWN, QUIT
+from pygame.constants import K_0, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_BACKSPACE, K_ESCAPE, K_KP0, K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9, K_KP_ENTER, K_RETURN, KEYDOWN, QUIT, SCALED, SRCALPHA
 
 pg.init()
 
@@ -27,8 +27,11 @@ orange = (255, 140, 0)
 # On utilise une police d"écriture spécifique
 font = "HarryPotterFont.ttf"
 Font = pg.font.Font(font, 20)
-# On charge l'image du chemin de traverse
+# On charge les différentes images
 img_chemin = pg.image.load("chemin_de_traverse.png")
+img_malkin = pg.image.load("malkin_shop.jpg")
+img_ollivander = pg.image.load("ollivander_shop.jpg")
+img_flourish_and_blotts = pg.image.load("flourish_and_blotts_shop.jpg")
 
 # On définit la vitesse de rafraichissement à 30 FPS
 clock = pg.time.Clock()
@@ -74,6 +77,22 @@ malkin_cords = (
 )
 malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
+
+dim = pg.Surface((1634, 1080), flags=SRCALPHA)
+pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
+
+def display_text(text, font, size, color, x, y, alignment=1):
+    assert alignment == 0 or alignment == 1 or alignment == 2, "Alignment not valid"
+
+    font = pg.font.Font(font, size)
+    text = font.render(text, 0, color)
+    text_rect = text.get_rect()
+    if alignment == 0:  # Alignement à gauche
+        screen.blit(text, (x, y))
+    elif alignment == 1:  # Alignement au centre
+        screen.blit(text, (x - (text_rect[2]/2), y))
+    else:  # Alignement à droite
+        screen.blit(text, (x - text_rect[2], y))
 
 def flourish_and_blotts(monnaie: int) -> dict:
     """
@@ -158,30 +177,60 @@ def user_entry(nb):
                 nb = 'QUIT'
     return nb
 
+def give_back(money):
+    if money == '':
+        return
+    display_text("I'm giving you back :", font, 60, orange, 812, 430)
+    n = 0
+    for type in money:
+        if money[type] > 0:
+            n += 1
+            display_text(f"{money[type]} {('note' if type > 2 else 'piece') + ('s' if money[type] > 1 else '')} of {type} euros", font, 50, green, 600, 465 + 65*n, alignment=0)
+
 def ollivander_shop():
-    Font = pg.font.Font(font, 80)
-    shop_img = pg.image.load("ollivander_shop.jpg")
+    print("Ollivander")
+
+def flourish_and_blotts_shop():
     nb = ''
+    money = ''
     while 1:
-        screen.blit(shop_img, (0, 0))
+        # On affiche l'image puis on l'assombrit
+        screen.blit(img_flourish_and_blotts, (0, 0))
+        screen.blit(dim, (0, 0))
+        display_text("Welcome to Flourish and Blotts shop !", font, 90, violet, 812, 100)
+        display_text("Enter amount :", font, 70, yellow, 812, 250)
         nb = user_entry(nb)
         if nb == 'QUIT':
             break
         elif nb[-1:] == '\n':
-            print(flourish_and_blotts(int(nb[:-1])))
+            money = flourish_and_blotts(int(nb[:-1]))
             nb = ''
-        nb_text = Font.render(nb, 0, yellow)
-        nb_text_rect = nb_text.get_rect()
-        screen.blit(nb_text, (817 - (nb_text_rect[2]/2), 400))
+        display_text(nb, font, 80, yellow, 812, 350)
+        give_back(money)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
         clock.tick(FPS)
 
-def flourish_and_blotts_shop():
-    shop_img = pg.image.load("flourish_and_blotts_shop.jpg")
-
 def malkin_shop():
-    shop_img = pg.image.load("malkin_shop.jpg")
+    nb = ''
+    money = ''
+    while 1:
+        # On affiche l'image puis on l'assombrit
+        screen.blit(img_malkin, (0, 0))
+        screen.blit(dim, (0, 0))
+        display_text("Welcome to Madam Malkin's shop !", font, 90, violet, 812, 100)
+        display_text("Enter amount :", font, 70, yellow, 812, 250)
+        nb = user_entry(nb)
+        if nb == 'QUIT':
+            break
+        elif nb[-1:] == '\n':
+            money = malkin(int(nb[:-1]))
+            nb = ''
+        display_text(nb, font, 80, yellow, 812, 350)
+        give_back(money)
+        screen.blit(update_fps(), (10,0)) ################
+        pg.display.update()
+        clock.tick(FPS)
 
 def description(mouse_pos, shop):
     shop_text = Font.render(shop, 0, violet)
