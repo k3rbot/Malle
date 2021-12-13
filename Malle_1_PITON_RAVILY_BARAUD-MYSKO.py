@@ -130,7 +130,7 @@ def malkin(rendu:int) -> dict:
     
     for thune in caisse_dispo:
         while rendu >= thune :
-            while caisse_dispo[200]<=1 :
+            while caisse_dispo[200] <= 1 :
                 caisse_dispo[200] = caisse_dispo[200] + 1
             while caisse_dispo[100] <= 3 :
                 caisse_dispo[100] = caisse_dispo[100] + 1  
@@ -146,14 +146,14 @@ def malkin(rendu:int) -> dict:
         else :
             print('La valeur de rendu souhaitée est au-dela des capacités de la caisse,désolé')
         return rendu_caisse
-
+"""
 print(malkin(0))
 print(malkin(8))
 print(malkin(62))
 print(malkin(231))
 print(malkin(497))
 print(malkin(842))
-
+"""
 
 def user_entry(nb):
     for event in pg.event.get():
