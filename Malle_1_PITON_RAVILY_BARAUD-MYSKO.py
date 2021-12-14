@@ -1,7 +1,5 @@
 import os
-from typing import NoReturn
 import pygame as pg
-from pygame.constants import K_0, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_BACKSPACE, K_ESCAPE, K_KP0, K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9, K_KP_ENTER, K_RETURN, KEYDOWN, QUIT, SCALED, SRCALPHA
 
 pg.init()
 
@@ -78,7 +76,7 @@ malkin_cords = (
 malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
 
-dim = pg.Surface((1634, 1080), flags=SRCALPHA)
+dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 
 def display_text(text, font, size, color, x, y, alignment=1):
@@ -155,37 +153,40 @@ print(malkin(497))
 print(malkin(842))
 """
 
+def ollivander(monnaie):
+    print("Ollivander ", monnaie)
+
 def user_entry(nb):
     for event in pg.event.get():
-        if event.type == QUIT:
+        if event.type == pg.QUIT:
             pg.quit()
             quit()
-        elif event.type == KEYDOWN:
-            if event.key == K_KP0:
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_KP0:
                 nb += '0'
-            elif event.key == K_KP1:
+            elif event.key == pg.K_KP1:
                 nb += '1'
-            elif event.key == K_KP2:
+            elif event.key == pg.K_KP2:
                 nb += '2'
-            elif event.key == K_KP3:
+            elif event.key == pg.K_KP3:
                 nb += '3'
-            elif event.key == K_KP4:
+            elif event.key == pg.K_KP4:
                 nb += '4'
-            elif event.key == K_KP5:
+            elif event.key == pg.K_KP5:
                 nb += '5'
-            elif event.key == K_KP6:
+            elif event.key == pg.K_KP6:
                 nb += '6'
-            elif event.key == K_KP7:
+            elif event.key == pg.K_KP7:
                 nb += '7'
-            elif event.key == K_KP8:
+            elif event.key == pg.K_KP8:
                 nb += '8'
-            elif event.key == K_KP9:
+            elif event.key == pg.K_KP9:
                 nb += '9'
-            elif event.key == K_BACKSPACE:
+            elif event.key == pg.K_BACKSPACE:
                 nb = nb[:-1]
-            elif (event.key == K_RETURN or event.key == K_KP_ENTER) and nb != '':
+            elif (event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER) and nb != '':
                 nb += '\n'
-            elif event.key == K_ESCAPE:
+            elif event.key == pg.K_ESCAPE:
                 nb = 'QUIT'
     return nb
 
@@ -194,51 +195,61 @@ def give_back(money):
         return
     display_text("I'm giving you back :", font, 60, orange, 812, 430)
     n = 0
-    for type in money:
-        if money[type] > 0:
+    for amount in money:
+        if money[amount] > 0:
             n += 1
-            display_text(f"{money[type]} {('note' if type > 2 else 'piece') + ('s' if money[type] > 1 else '')} of {type} euros", font, 50, green, 600, 465 + 65*n, alignment=0)
+            display_text((f"{money[amount]} {('note' if amount > 2 else 'piece') + ('s' if money[amount] > 1 else '')} of {amount} euros")
+            if type(amount) == int else f"{money[amount]} {amount}", font, 50, green, 600, 465 + 65*n, alignment=0)
 
-def ollivander_shop():
-    print("Ollivander")
-
-def flourish_and_blotts_shop():
+def shop(shop):
+    assert shop == 0 or shop == 1 or shop == 2, "Wrong shop id: Unexistant"
     nb = ''
     money = ''
+    hp_money = [0, 0, 0]
+    money_entered = 0
+    
+    if shop == 1:
+        money_type = " galleons"
+    else:
+        money_type = " euros"
     while 1:
-        # On affiche l'image puis on l'assombrit
-        screen.blit(img_flourish_and_blotts, (0, 0))
+        # On affiche l'image de la boutique puis on l'assombrit
+        if shop == 0:
+            screen.blit(img_malkin, (0, 0))
+            display_text("Welcome to Madam's Malkin shop !", font, 90, violet, 812, 100)
+        elif shop == 1:
+            screen.blit(img_ollivander, (0, 0))
+            display_text("Welcome to Ollivander's shop !", font, 90, violet, 812, 100)
+        else:
+            screen.blit(img_flourish_and_blotts, (0, 0))
+            display_text("Welcome to Flourish and Blotts shop !", font, 90, violet, 812, 100)
         screen.blit(dim, (0, 0))
-        display_text("Welcome to Flourish and Blotts shop !", font, 90, violet, 812, 100)
         display_text("Enter amount :", font, 70, yellow, 812, 250)
+
         nb = user_entry(nb)
         if nb == 'QUIT':
             break
         elif nb[-1:] == '\n':
-            money = flourish_and_blotts(int(nb[:-1]))
+            if shop == 0:
+                money_entered = int(nb[:-1])
+                money = malkin(money_entered)
+            elif shop == 1:
+                if money_type == " galleons":
+                    money_type = " sickles"
+                    hp_money[0] = (int(nb[:-1]))
+                elif money_type == " sickles":
+                    money_type = " knuts"
+                    hp_money[1] = (int(nb[:-1]))
+                else:
+                    money_type = " galleons"
+                    hp_money[2] = (int(nb[:-1]))
+                    money = ollivander(hp_money)
+            else:
+                money_entered = int(nb[:-1])
+                money = flourish_and_blotts(money_entered)
             nb = ''
-        display_text(nb, font, 80, yellow, 812, 350)
-        give_back(money)
-        screen.blit(update_fps(), (10,0)) ################
-        pg.display.update()
-        clock.tick(FPS)
 
-def malkin_shop():
-    nb = ''
-    money = ''
-    while 1:
-        # On affiche l'image puis on l'assombrit
-        screen.blit(img_malkin, (0, 0))
-        screen.blit(dim, (0, 0))
-        display_text("Welcome to Madam Malkin's shop !", font, 90, violet, 812, 100)
-        display_text("Enter amount :", font, 70, yellow, 812, 250)
-        nb = user_entry(nb)
-        if nb == 'QUIT':
-            break
-        elif nb[-1:] == '\n':
-            money = malkin(int(nb[:-1]))
-            nb = ''
-        display_text(nb, font, 80, yellow, 812, 350)
+        display_text(nb + (str(money_entered) if nb == '' and money_entered != 0 else '') + money_type, font, 80, yellow, 812, 350)
         give_back(money)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
@@ -264,17 +275,17 @@ def alley(mouse_pos):
         screen.blit(ollivander_poly, (0, 0))
         description(mouse_pos, "Ollivander")
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
-            ollivander_shop()
+            shop(1)
     elif flourish_and_blotts_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(flourish_and_blotts_poly, (0, 0))
         description(mouse_pos, "Flourish and Blotts")
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
-            flourish_and_blotts_shop()
+            shop(2)
     elif malkin_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(malkin_poly, (0, 0))
         description(mouse_pos, "Madam Malkin's Robes for All Occasions")
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
-            malkin_shop()
+            shop(0)
 
 # Affichage du nombre de FPS -- TEMPORAIRE ###########
 def update_fps():
@@ -286,7 +297,7 @@ def update_fps():
 def main():
     while 1:
         for event in pg.event.get():
-            if event.type == QUIT or (event.key == K_ESCAPE if event.type == KEYDOWN else 0):
+            if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
                 pg.quit()
                 quit()
 
