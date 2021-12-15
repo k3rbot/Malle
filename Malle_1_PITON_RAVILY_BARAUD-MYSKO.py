@@ -153,8 +153,32 @@ print(malkin(497))
 print(malkin(842))
 """
 
-def ollivander(monnaie):
-    print("Ollivander ", monnaie)
+def ollivander(amount):
+    """
+    Fonction permettant de savoir comment rendre une somme
+    de noises, mornilles et gallions avec le moins de
+    pièces possible.
+
+
+    Entrée: Montant à rendre
+    Sortie: L'équivalent en noises, mornilles et gallions
+            rendus avec le moins de pièces possibles.
+    """
+    while amount[0] >= 29:
+        amount[0] -= 29
+        amount[1] += 1
+    while amount[1] >= 17:
+        amount[1] -= 17
+        amount[2] += 1
+    return amount
+
+"""
+print(ollivander((0, 0, 0)))
+print(ollivander((654, 0, 0)))
+print(ollivander((78, 23, 0)))
+print(ollivander((9, 11, 2)))
+print(ollivander((451, 531, 7)))
+"""
 
 def user_entry(nb):
     for event in pg.event.get():
@@ -207,7 +231,7 @@ def shop(shop):
     money = ''
     hp_money = [0, 0, 0]
     money_entered = 0
-    
+
     if shop == 1:
         money_type = " galleons"
     else:
