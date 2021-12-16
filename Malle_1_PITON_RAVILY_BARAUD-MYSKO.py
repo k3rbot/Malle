@@ -217,7 +217,7 @@ def user_entry(nb):
 def give_back(repaid):
     if repaid == '':
         return
-    display_text("I'm giving you back :", font, 60, orange, 812, 450)
+    display_text("I'm giving you back :", font, 60, orange, 812, 450 if shop != 0 else 600)
     i = 0
     for amount in repaid:
         if type(repaid) == list:
@@ -304,7 +304,12 @@ def shop(shop):
                 money_entered = int(nb[:-1])
                 money = flourish_and_blotts(money_entered)
             nb = ''
-        display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_type, font, 80, yellow, 812, 350)
+        if shop == 1:
+            money_list = (" galleons", " sickles", " knuts")
+            for i in range(nb_ollivander + 1):
+                display_text(nb + (str(hp_money[i]) if nb == '' and tests_needed else '') + money_list[i], font, 60, yellow, 600, 260 + 75*(i +1), alignment=0)
+        else:
+            display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_type, font, 80, yellow, 812, 350)
         give_back(money)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
