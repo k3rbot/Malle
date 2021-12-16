@@ -79,6 +79,10 @@ malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
 dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 
+ollivander_tests = ((12, 5, 6), (0, 0, 654), (0, 23, 78), (2, 11, 451), (7, 531, 451))
+flourish_and_blotts_tests = (0, 60, 63, 231, 899)
+malkin_tests = (0, 8, 62, 231, 497, 842)
+
 def display_text(text, font, size, color, x, y, alignment=1):
     assert alignment == 0 or alignment == 1 or alignment == 2, "Alignment not valid"
 
@@ -113,12 +117,13 @@ def flourish_and_blotts(monnaie: int) -> dict:
 
     return monnaie_rendue
 
+"""
 print(flourish_and_blotts(0))
 print(flourish_and_blotts(60))
 print(flourish_and_blotts(63))
 print(flourish_and_blotts(231))
 print(flourish_and_blotts(899))
-
+"""
 
 def malkin(rendu:int) -> dict:
     assert type(rendu) == int
@@ -153,7 +158,7 @@ print(malkin(497))
 print(malkin(842))
 """
 
-def ollivander(amount):
+def ollivander(amount:list):
     """
     Fonction permettant de savoir comment rendre une somme
     de noises, mornilles et gallions avec le moins de
@@ -164,13 +169,16 @@ def ollivander(amount):
     Sortie: L'équivalent en noises, mornilles et gallions
             rendus avec le moins de pièces possibles.
     """
-    while amount[0] >= 29:
-        amount[0] -= 29
-        amount[1] += 1
+
+    result = [0, 0, 0]
+    while amount[2] >= 29:
+        amount[2] -= 29
+        result[1] += 1
     while amount[1] >= 17:
         amount[1] -= 17
-        amount[2] += 1
-    return amount
+        result[0] += 1
+    result[2] = amount[2]
+    return result
 
 """
 print(ollivander((0, 0, 0)))
@@ -214,16 +222,21 @@ def user_entry(nb):
                 nb = 'QUIT'
     return nb
 
-def give_back(money):
-    if money == '':
+def give_back(repaid):
+    if repaid == '':
         return
-    display_text("I'm giving you back :", font, 60, orange, 812, 430)
-    n = 0
-    for amount in money:
-        if money[amount] > 0:
-            n += 1
-            display_text((f"{money[amount]} {('note' if amount > 2 else 'piece') + ('s' if money[amount] > 1 else '')} of {amount} euros")
-            if type(amount) == int else f"{money[amount]} {amount}", font, 50, green, 600, 465 + 65*n, alignment=0)
+    display_text("I'm giving you back :", font, 60, orange, 812, 450)
+    i = 0
+    for amount in repaid:
+        if type(repaid) == list:
+            i += 1
+            display_text(f"{amount} {('Galleon' if i == 1 else 'Knut' if i == 2 else 'Sickle') + ('s' if amount > 1 else '')}", font, 80, green, 600, 500 + 85*i, alignment=0)
+        elif repaid[amount] > 0:
+            i += 1
+            display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
+            if type(amount) == int else f"{repaid[amount]} {amount}", font, 50, green, 600, 465 + 65*i, alignment=0)
+    if i == 0:
+        display_text("Nothing to give you back !", font, 70, green, 812, 525, alignment=1)
 
 def shop(shop):
     assert shop == 0 or shop == 1 or shop == 2, "Wrong shop id: Unexistant"
@@ -231,6 +244,9 @@ def shop(shop):
     money = ''
     hp_money = [0, 0, 0]
     money_entered = 0
+    tests_needed = True
+    nb_tests = 0
+    nb_ollivander = 0
 
     if shop == 1:
         money_type = " galleons"
@@ -250,9 +266,32 @@ def shop(shop):
         screen.blit(dim, (0, 0))
         display_text("Enter amount :", font, 70, yellow, 812, 250)
 
-        nb = user_entry(nb)
+        if tests_needed:
+            if shop == 0:
+                nb = str(malkin_tests[nb_tests])
+                if nb_tests == 4:
+                    tests_needed = False
+            elif shop == 1:
+                nb = str(ollivander_tests[(nb_tests - 1)//3][nb_ollivander])
+                if nb_ollivander >= (2 if nb_tests != 0 else 3):
+                    nb_ollivander = 0
+                else:
+                    nb_ollivander += 1
+                if nb_tests == 13:
+                    tests_needed = False
+            elif shop == 2:
+                nb = str(flourish_and_blotts_tests[nb_tests])
+                if nb_tests == 3:
+                    tests_needed = False
+            if shop != 1 or not(nb_ollivander == 0 and nb_tests == 0):
+                nb += '\n'
+            nb_tests += 1
+            if user_entry('') == 'QUIT':
+                return
+        else:
+            nb = user_entry(nb)
         if nb == 'QUIT':
-            break
+            return
         elif nb[-1:] == '\n':
             if shop == 0:
                 money_entered = int(nb[:-1])
@@ -264,19 +303,25 @@ def shop(shop):
                 elif money_type == " sickles":
                     money_type = " knuts"
                     hp_money[1] = (int(nb[:-1]))
-                else:
+                elif money_type == " knuts":
                     money_type = " galleons"
                     hp_money[2] = (int(nb[:-1]))
                     money = ollivander(hp_money)
+                money_entered = int(nb[:-1])
             else:
                 money_entered = int(nb[:-1])
                 money = flourish_and_blotts(money_entered)
             nb = ''
-
-        display_text(nb + (str(money_entered) if nb == '' and money_entered != 0 else '') + money_type, font, 80, yellow, 812, 350)
+        print(money, " -- ", money_entered)
+        display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_type, font, 80, yellow, 812, 350)
         give_back(money)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
+        if tests_needed:
+            for _ in range(25 if shop != 1 and nb_ollivander == 0 else 10):
+                if user_entry('') == 'QUIT':
+                    return
+                pg.time.wait(100)
         clock.tick(FPS)
 
 def description(mouse_pos, shop):
