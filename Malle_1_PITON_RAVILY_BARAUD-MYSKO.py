@@ -132,22 +132,23 @@ def malkin(rendu:int) -> dict:
     rendu_caisse ={200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
     
     for thune in caisse_dispo:
-        while rendu <= thune:
-                if caisse_dispo[200] > 0 and caisse_dispo[100] > 2 and caisse_dispo[50] > 0 and caisse_dispo[20] > 0 and caisse_dispo[10] > 0 and caisse_dispo > 4:
+        while rendu >= thune:
+                if caisse_dispo[thune] > 0:
                     rendu -= thune
                     rendu_caisse[thune] += 1
-                else :
+                else:
                     break 
                 
     return rendu_caisse
 
-
+"""
 print(malkin(0))
 print(malkin(8))
 print(malkin(62))
 print(malkin(231))
 print(malkin(497))
 print(malkin(842))
+"""
 
 def ollivander(amount:list):
     """
@@ -303,7 +304,6 @@ def shop(shop):
                 money_entered = int(nb[:-1])
                 money = flourish_and_blotts(money_entered)
             nb = ''
-        print(money, " -- ", money_entered)
         display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_type, font, 80, yellow, 812, 350)
         give_back(money)
         screen.blit(update_fps(), (10,0)) ################
