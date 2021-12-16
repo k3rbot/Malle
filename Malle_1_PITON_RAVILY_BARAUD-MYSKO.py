@@ -128,35 +128,26 @@ print(flourish_and_blotts(899))
 def malkin(rendu:int) -> dict:
     assert type(rendu) == int
 
-    caisse_dispo = {200 : 1, 100 : 3, 50 : 1 , 20 : 1, 10: 1, 2 :5}
+    caisse_dispo = {200 : 1, 100 : 3, 50 : 1 , 20 : 1, 10: 1, 2 : 5}
     rendu_caisse ={200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
     
     for thune in caisse_dispo:
-        while rendu >= thune :
-            while caisse_dispo[200] <= 1 :
-                caisse_dispo[200] = caisse_dispo[200] + 1
-            while caisse_dispo[100] <= 3 :
-                caisse_dispo[100] = caisse_dispo[100] + 1  
-            while caisse_dispo[50] <= 1 :
-                caisse_dispo[50] = caisse_dispo[50] + 1
-            while caisse_dispo[20] <= 1 :
-                caisse_dispo[20] = caisse_dispo[20] +1
-            while caisse_dispo[10] <= 1 :
-                caisse_dispo[10] = caisse_dispo[10] +1
-            while caisse_dispo[2] <= 1 :
-                caisse_dispo[2] = caisse_dispo[2] + 1 
-       
-        else :
-            print('La valeur de rendu souhaitée est au-dela des capacités de la caisse,désolé')
-        return rendu_caisse
-"""
+        while rendu <= thune:
+                if caisse_dispo[200] > 0 and caisse_dispo[100] > 2 and caisse_dispo[50] > 0 and caisse_dispo[20] > 0 and caisse_dispo[10] > 0 and caisse_dispo > 4:
+                    rendu -= thune
+                    rendu_caisse[thune] += 1
+                else :
+                    break 
+                
+    return rendu_caisse
+
+
 print(malkin(0))
 print(malkin(8))
 print(malkin(62))
 print(malkin(231))
 print(malkin(497))
 print(malkin(842))
-"""
 
 def ollivander(amount:list):
     """
