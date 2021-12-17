@@ -113,9 +113,8 @@ def flourish_and_blotts(monnaie: int) -> dict:
     monnaie_rendue = {500: 0, 200: 0, 100: 0, 50: 0,
                     20: 0, 10: 0, 5: 0, 2: 0, 1: 0}
     for billet in monnaie_dispo:
-        while monnaie >= billet:
-            monnaie -= billet
-            monnaie_rendue[billet] += 1
+        monnaie_rendue[billet] = monnaie // billet
+        monnaie %= billet
 
     return monnaie_rendue
 
@@ -145,7 +144,7 @@ print(malkin(842))
 """
 
 
-def ollivander(amount:list):
+def ollivander(monnaie:list):
     """
     Fonction permettant de savoir comment rendre une somme
     de noises, mornilles et gallions avec le moins de
@@ -158,9 +157,10 @@ def ollivander(amount:list):
     """
 
     monnaie_rendue = [0, 0, 0]
-    monnaie_rendue[0] = amount[1] // 17 + amount[0]
-    monnaie_rendue[1] = amount[2] // 29 + amount[1] % 17
-    monnaie_rendue[2] = amount[2] % 29
+    monnaie_rendue[1] = monnaie[2] // 29 + monnaie[1]
+    monnaie_rendue[2] = monnaie[2] % 29
+    monnaie_rendue[0] = monnaie_rendue[1] // 17 + monnaie[0]
+    monnaie_rendue[1] %= 17
     return monnaie_rendue
 
 

@@ -1,0 +1,16 @@
+VARIABLES
+
+monnaie <- liste
+monnaie_rendue <- liste
+
+Fonction ollivander (monnaie):
+    monnaie_rendue <-- [0, 0, 0]
+    monnaie_rendue[1] <-- monnaie[2] // 29 + monnaie[1]
+    monnaie_rendue[2] <-- reste de monnaie[2] par 29
+    monnaie_rendue[0] <-- monnaie_rendue[1] // 17 + monnaie[0]
+    monnaie_rendue[1] = reste de monnaie_rendue[1] par 17
+    
+    
+   Renvoyer monnaie_rendue
+
+Afficher ollivander((0, 0, 654))
