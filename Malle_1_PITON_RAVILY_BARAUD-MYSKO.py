@@ -117,23 +117,31 @@ def flourish_and_blotts(monnaie: int) -> dict:
 
     return monnaie_rendue
 
+"""
 def malkin(rendu:int) -> dict:
-    assert type(rendu) == int
+   assert type(rendu) == int
 
-    caisse_dispo = {200 : 1, 100 : 3, 50 : 1 , 20 : 1, 10: 1, 2 : 5}
-    rendu_caisse ={200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
-    
-    for thune in caisse_dispo:
-        while rendu >= thune:
-                if caisse_dispo[thune] > 0:
-                    rendu -= thune
-                    rendu_caisse[thune] += 1
-                else:
-                    break 
-                
-    return rendu_caisse
+   caisse_dispo = {200: 1, 100 : 3, 50 : 1 ,  20: 1, 10: 1, 2 : 5}
+   rendu_caisse = {200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
+   
+   for thune in caisse_dispo :
+       while rendu >= thune  :
+               if rendu_caisse != caisse_dispo :
+                   rendu -= thune
+                   rendu_caisse[thune] += 1
+               else:
+                   break 
+               
+   return rendu_caisse
+print(malkin(0))
+print(malkin(8))
+print(malkin(62))
+print(malkin(231))
+print(malkin(497))
+print(malkin(842))
+"""
 
-def ollivander(monnaie_sorciers:list):
+def ollivander(amount:list):
     """
     Fonction permettant de savoir comment rendre une somme
     de noises, mornilles et gallions avec le moins de
@@ -146,9 +154,9 @@ def ollivander(monnaie_sorciers:list):
     """
 
     monnaie_rendue = [0, 0, 0]
-    monnaie_rendue[0] = monnaie_sorciers[1] // 17 + monnaie_sorciers[0]
-    monnaie_rendue[1] = monnaie_sorciers[2] // 29 + monnaie_sorciers[1] % 17
-    monnaie_rendue[2] = monnaie_sorciers[2] % 29
+    monnaie_rendue[0] = amount[1] // 17 + amount[0]
+    monnaie_rendue[1] = amount[2] // 29 + amount[1] % 17
+    monnaie_rendue[2] = amount[2] % 29
     return monnaie_rendue
 
 def user_entry(nb=''):
