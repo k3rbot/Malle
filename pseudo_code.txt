@@ -37,8 +37,8 @@ Fonction flourish_and_blotts(monnaie) <-- dictionnaire:
     monnaie_rendue <-- {500 : 0, 200 : 0, 100 : 0, 50 : 0, 20 : 0, 10 : 0, 5 : 0, 2 : 0, 1 : 0}
 
     POUR billet dans monnaie_dispo:
-    monnaie_rendue[billet] = monnaie // billet
-    monnaie = reste de monnaie par billet
+        monnaie_rendue[billet] = monnaie // billet
+        monnaie = monnaie % billet
     Fin POUR
 
     Renvoyer monnaie_rendue
