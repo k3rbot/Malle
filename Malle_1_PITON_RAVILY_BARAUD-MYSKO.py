@@ -122,17 +122,17 @@ def flourish_and_blotts(monnaie: int) -> dict:
 """
 def malkin(rendu:int) -> dict:
    assert type(rendu) == int
+   if rendu > 590:
+       return
 
-   caisse_dispo = {200: 1, 100: 3, 50: 1 ,  20: 1, 10: 1, 2: 5}
+   monnaie_dispo = {200: 1, 100: 3, 50: 1, 20: 1, 10: 1, 2: 5}
    rendu_caisse = {200: 0, 100: 0, 50: 0, 20: 0, 10: 0, 2: 0}
    
-   for thune in caisse_dispo :
-       while rendu >= thune  :
-               if rendu_caisse != caisse_dispo :
-                   rendu -= thune
-                   rendu_caisse[thune] += 1
-               else:
-                   break 
+   for billet in monnaie_dispo:
+        while rendu >= billet and monnaie_dispo[billet] > 0:
+            monnaie_dispo[billet] -= 1
+            rendu -= billet
+            rendu_caisse[billet] += 1
                
    return rendu_caisse
 print(malkin(0))
@@ -196,6 +196,8 @@ def user_entry(nb=''):
                 nb += '\n'
             elif event.key == pg.K_ESCAPE:
                 nb = 'QUIT'
+            elif event.key == pg.K_RIGHT:
+                nb += 'SKIP'
     return nb
 
 
@@ -257,7 +259,7 @@ def shop(shop):
                     step_ollivander_test = 0
                     nbs_entered = [0, 0, 0]
                     money_type = 1
-                elif not(nb_tests == 0  and step_ollivander_test == 0):
+                elif not(nb_tests == 0 and step_ollivander_test == 0):
                     step_ollivander_test += 1
                 if nb_tests == 19:
                     tests_needed = False
@@ -268,12 +270,21 @@ def shop(shop):
             if shop != 1 or ((step_ollivander_test != 0 and step_ollivander_test != 4) and nb_tests != 0):
                 nb += '\n'
             nb_tests += 1
-            if user_entry() == 'QUIT':
+            entry = user_entry()
+            if entry == 'QUIT':
                 return
+            elif entry == 'SKIP':
+                tests_needed = False
+                step_ollivander_test = 0
+                nb_tests = 0
+                nbs_entered = [0, 0, 0]
+                money_type = 1
         else:
             nb = user_entry(nb)
         if nb == 'QUIT':
             return
+        elif nb[-4:] == 'SKIP':
+            nb = nb[:-4]
         elif nb[-1:] == '\n':
             if shop == 0:
                 money_entered = int(nb[:-1])
@@ -290,11 +301,11 @@ def shop(shop):
                     repaid = ollivander(nbs_entered)
                     if not(tests_needed):
                         money_type = 1
+                        nbs_entered = [0, 0, 0]
                 money_entered = int(nb[:-1])
             else:
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
-            print(nb[:-1], "----", nbs_entered, nb_tests, step_ollivander_test)
             nb = ''
         if shop == 1:
             for i in range(money_type):
@@ -309,9 +320,21 @@ def shop(shop):
         pg.display.update()
         if tests_needed or nb_tests == 20:
             for _ in range(35 if shop != 1 or step_ollivander_test == 3 else 10):
-                if user_entry() == 'QUIT':
+                entry = user_entry()
+                if entry == 'QUIT':
                     return
+                elif entry == 'SKIP':
+                    tests_needed = False
+                    step_ollivander_test = 0
+                    nb_tests = 0
+                    nbs_entered = [0, 0, 0]
+                    money_type = 1
                 pg.time.wait(100)
+            if nb_tests == 20:
+                step_ollivander_test = 0
+                nb_tests = 0
+                nbs_entered = [0, 0, 0]
+                money_type = 1
         clock.tick(FPS)
 
 
