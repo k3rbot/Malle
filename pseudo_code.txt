@@ -42,3 +42,33 @@ Fonction flourish_and_blotts(monnaie) <-- dictionnaire:
     Fin POUR
 
     Renvoyer monnaie_rendue
+   
+   
+Malkin :
+
+
+
+
+	 monnaie_dispo <-- {200 : 1, 100 : 3, 50 : 1, 20 : 1, 10 : 1, 2 : 5 }
+	 rendu_caisse <-- {200 : 0, 100 : 0, 50 : 0, 20 : 0, 10 : 0, 2 : 0 }
+
+
+	
+	POUR billet DANS monnaie_dispo :
+		TANT QUE  rendu < ou = billet ET billets de monnaie_dispo > 0:
+			billets dans monnaie_dispo -1 
+			rendu = rendu - billets 
+			billet dans rendu_caisse + 1
+
+
+
+	Renvoi de la valeur rendu_caisse
+
+
+Affichage pour les valeurs de rendu :
+0
+8
+62
+231
+497
+842
