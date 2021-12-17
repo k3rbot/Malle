@@ -10,21 +10,16 @@ screen = pg.display.set_mode((1624, 1080))
 # On définit plusieurs couleurs au format rgb
 white = (255, 255, 255)
 black = (0, 0, 0)
-gray = (50, 50, 50)
-red = (255, 0, 0)
 green = (34, 139, 34)
 violet = (128, 0, 128)
-blue = (0, 0, 255)
 yellow = (255, 255, 0)
 transparent_yellow = (255, 240, 0, 85)
-golden = (212, 175, 55)
-silver = (192, 192, 192)
-bronze = (205, 127, 50)
 orange = (255, 140, 0)
 
 # On utilise une police d"écriture spécifique
 font = "HarryPotterFont.ttf"
 Font = pg.font.Font(font, 20)
+
 # On charge les différentes images
 img_chemin = pg.image.load("chemin_de_traverse.png")
 img_malkin = pg.image.load("malkin_shop.jpg")
@@ -36,9 +31,9 @@ clock = pg.time.Clock()
 FPS = 30
 
 # On définit le titre de la fenêtre
-pg.display.set_caption("HARRY POTTER SE FAIT LA MALLE")
+pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
 
-# Polygones des boutiques
+# Polygone d'une boutique
 ollivander_cords = (
     (781, 704), (784, 711), (815, 709), (818, 716),
     (871, 718), (871, 485), (848, 483), (830, 484),
@@ -48,6 +43,7 @@ ollivander_cords = (
     (778, 584), (778, 596), (783, 602), (783, 669),
     (784, 677), (780, 707)
 )
+# La surface sur laquelle on met notre polygone accepte la notion de transparence
 ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 ollivander_rect = pg.draw.polygon(ollivander_poly, transparent_yellow, ollivander_cords)
 
@@ -76,15 +72,32 @@ malkin_cords = (
 malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
 
+# On prépare une surface sur laquelle on met un rectangle noir 
+# semi-transparent pour réduire la luminosité de l'image derrière
 dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 
+# Tous les tests à faire pour chaque maisons
 ollivander_tests_list = ((0, 0, 0), (0, 0, 654), (0, 23, 78), (2, 11, 9), (7, 531, 451))
 flourish_and_blotts_tests_list = (0, 60, 63, 231, 899)
 malkin_tests_list = (0, 8, 62, 231, 497, 842)
 
 
-def display_text(text, font, size, color, x, y, alignment=1):
+def display_text(text: str, font: pg.font.Font, size: int, color: tuple, x: int, y: int, alignment=1):
+    """
+    Fonction permettant l'affichage d'un texte
+
+    Entrée: text: Le texte à afficher
+            font: La police d'écriture à utiliser
+            size: La taille de la police
+            color: La couleur de la police de type (r, g, b)
+            x: L'emplacement du texte sur l'axe horizontal
+            y: L'emplacement du texte sur l'axe horizontal
+            alignment: Alignement du texte, 
+                        0: Texte aligné à gauche,
+                        1: Texte centré
+                        2: Texte aligné à droite
+    """
     assert alignment == 0 or alignment == 1 or alignment == 2, "Alignment not valid"
 
     font = pg.font.Font(font, size)
@@ -101,7 +114,7 @@ def display_text(text, font, size, color, x, y, alignment=1):
 def flourish_and_blotts(monnaie: int) -> dict:
     """
     Fonction permettant de savoir le nombre de
-    billets/pièces à rendre pour un montant donné
+    billets/pièces minimum à rendre pour un montant donné
 
     Entrée: Montant à rendre
     Sortie: Dictionnaire comprenant la valeur de
@@ -111,7 +124,7 @@ def flourish_and_blotts(monnaie: int) -> dict:
 
     monnaie_dispo = (500, 200, 100, 50, 20, 10, 5, 2, 1)
     monnaie_rendue = {500: 0, 200: 0, 100: 0, 50: 0,
-                    20: 0, 10: 0, 5: 0, 2: 0, 1: 0}
+                    20: 0, 10: 0, 5: 0, 2: 0, 1: 0, "impossible": False}
     for billet in monnaie_dispo:
         monnaie_rendue[billet] = monnaie // billet
         monnaie %= billet
@@ -119,30 +132,35 @@ def flourish_and_blotts(monnaie: int) -> dict:
     return monnaie_rendue
 
 
-def malkin(rendu:int) -> dict:
-   assert type(rendu) == int
-   if rendu > 590:
-       return
+def malkin(rendu: int) -> dict:
+    """
+    Fonction permettant de savoir le nombre de
+    billets/pièces minimum à rendre pour un montant donné
+    avec un nombre de pièces/billets limités
 
-   monnaie_dispo = {200: 1, 100: 3, 50: 1, 20: 1, 10: 1, 2: 5}
-   rendu_caisse = {200: 0, 100: 0, 50: 0, 20: 0, 10: 0, 2: 0}
-   for billet in monnaie_dispo:
-        while rendu >= billet and monnaie_dispo[billet] > 0:
-            monnaie_dispo[billet] -= 1
-            rendu -= billet
-            rendu_caisse[billet] += 1
-   return rendu_caisse
+    Entrée: Montant à rendre
+    Sortie: Dictionnaire comprenant la valeur de
+            le pièce/du billet et le nombre à rendre
+            ! Si la valeur est trop élevée la fonction ne
+            renverra rien
+    """
+    assert type(rendu) == int
+    if rendu > 590:
+        return
+
+    monnaie_dispo = {200: 1, 100: 3, 50: 1, 20: 1, 10: 1, 2: 5}
+    rendu_caisse = {200: 0, 100: 0, 50: 0, 20: 0, 10: 0, 2: 0, "impossible": False}
+    for billet in monnaie_dispo:
+            while rendu >= billet and monnaie_dispo[billet] > 0:
+                monnaie_dispo[billet] -= 1
+                rendu -= billet
+                rendu_caisse[billet] += 1
+    if rendu > 0:
+        rendu_caisse["impossible"] = True
+    return rendu_caisse
 
 
-print(malkin(0))
-print(malkin(8))
-print(malkin(62))
-print(malkin(231))
-print(malkin(497))
-print(malkin(842))
-
-
-def ollivander(monnaie:list):
+def ollivander(monnaie:list) -> list:
     """
     Fonction permettant de savoir comment rendre une somme
     de noises, mornilles et gallions avec le moins de
@@ -159,10 +177,18 @@ def ollivander(monnaie:list):
     monnaie_rendue[2] = monnaie[2] % 29
     monnaie_rendue[0] = monnaie_rendue[1] // 17 + monnaie[0]
     monnaie_rendue[1] %= 17
+
     return monnaie_rendue
 
 
-def user_entry(nb=''):
+def user_entry(nb='') -> str:
+    """
+    Fonction permettant de récupérer les entrées de l'utilisateur
+
+    Entrée: variable sur lequelle sera concaténée ou écrasée la
+    valeur de l'entrée utilisateur
+    Sortie: entrées de l'utilisateur
+    """
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -199,12 +225,19 @@ def user_entry(nb=''):
     return nb
 
 
-def give_back(repaid):
+def give_back(repaid: dict or list):
+    """
+    Fonction permettant d'afficher le rendu pour n'importe quelle boutique
+
+    Entrée: Un dictionnaire comportant les différentes monnaie et leur nombre
+    """
     if repaid == {}:
         return
     display_text("I'm giving you back :", font, 60, orange, 812, 450 if type(repaid) == dict else 560)
     i = 0
     for amount in repaid:
+        if amount == "impossible":
+            break
         if type(repaid) == list and amount > 0:
             i += 1
             display_text(f"{amount} {('Galleon' if i == 1 else 'Sickle' if i == 2 else 'Knut') + ('s' if amount > 1 else '')}", font, 80, green, 630, 590 + 85*i, alignment=0)
@@ -212,27 +245,38 @@ def give_back(repaid):
             i += 1
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
             if type(amount) == int else f"{repaid[amount]} {amount}", font, 50, green, 600, 465 + 65*i, alignment=0)
-    if i == 0:
+    if type(repaid) == dict and repaid["impossible"]:
+        display_text("Can't give you enough money !", font, 70, green, 812, 950, alignment=1)
+    elif i == 0:
         display_text("Nothing to give you back !", font, 70, green, 812, 525 if type(repaid) == dict else 650, alignment=1)
 
 
-def shop(shop):
+def shop(shop: int):
+    """
+    Fonction permettant l'affichage et la gestion de n'importe quelle boutique
+
+    Entrée: id de la boutique 0: Malkin, 1: Ollivander,
+    2: Flourish and Blotts
+    """
     assert shop == 0 or shop == 1 or shop == 2, "Wrong shop id: Unexistant"
-    nb = ''
-    repaid = {}
-    nbs_entered = [0, 0, 0]
-    money_entered = 0
-    tests_needed = True
-    nb_tests = 0
-    step_ollivander_test = 0
+
+    # On prépare les variables communes à toutes les boutiques
+    nb = ''  # Entrées de l'utilisateur
+    repaid = {}  # Rendu de la boutique
+    nbs_entered = [0, 0, 0]  # Nombres entrés chez Ollivander
+    money_entered = 0  # Nombre entré par l'utilisateur
+    tests_needed = True  # Doit on faire les tests de la boutique
+    nb_tests = 0  # Nombre d'itérations pour l'affichage des tests
+    step_ollivander_test = 0  # Etape de l'entrée de valeur chez Ollivander
     money_list = (" euros", " galleons", " sickles", " knuts")
     if shop == 1:
+        # On est en Gallions chez Ollivander
         money_type = 1
     else:
         money_type = 0
 
     while 1:
-        # On affiche l'image de la boutique puis on l'assombrit
+        # On affiche l'image de la boutique
         if shop == 0:
             screen.blit(img_malkin, (0, 0))
             display_text("Welcome to Madam's Malkin shop !", font, 90, violet, 812, 100)
@@ -242,14 +286,19 @@ def shop(shop):
         else:
             screen.blit(img_flourish_and_blotts, (0, 0))
             display_text("Welcome to Flourish and Blotts shop !", font, 90, violet, 812, 100)
+        # On l'assombrit
         screen.blit(dim, (0, 0))
         display_text("Enter amount :", font, 70, yellow, 812, 250)
 
+        # On fait les tests pour chaque boutique
         if tests_needed:
+            # Chez Malkin
             if shop == 0:
+                # On récupère la valeur du test
                 nb = str(malkin_tests_list[nb_tests])
                 if nb_tests == 4:
                     tests_needed = False
+            # Chez Ollivander
             elif shop == 1:
                 if step_ollivander_test != 3 and not(nb_tests == 0 and step_ollivander_test == 0):
                     nb = str(ollivander_tests_list[(nb_tests - 1)//4][step_ollivander_test])
@@ -261,73 +310,107 @@ def shop(shop):
                     step_ollivander_test += 1
                 if nb_tests == 19:
                     tests_needed = False
+            # Chez Fleury
             elif shop == 2:
                 nb = str(flourish_and_blotts_tests_list[nb_tests])
                 if nb_tests == 3:
                     tests_needed = False
+            # On est prêts à afficher le nombre pour le test
             if shop != 1 or ((step_ollivander_test != 0 and step_ollivander_test != 4) and nb_tests != 0):
                 nb += '\n'
             nb_tests += 1
+
+            # On récupère les entrées de l'utilisateur
             entry = user_entry()
+            # Il a appuyé sur esc
             if entry == 'QUIT':
                 return
+            # Il a appuyé sur la flèche de droite
             elif entry == 'SKIP':
+                # On passe toute la phase d'affichage des tests
                 tests_needed = False
                 step_ollivander_test = 0
                 nb_tests = 0
                 nbs_entered = [0, 0, 0]
                 money_type = 1
+
+        # L'utilisateur choisit le montant à rendre
         else:
             nb = user_entry(nb)
+
         if nb == 'QUIT':
             return
         elif nb[-4:] == 'SKIP':
+            # On enlève le caractère puisqu'on ne fait plus les tests
             nb = nb[:-4]
+        # L'utilisateur à appuyé sur entrée
         elif nb[-1:] == '\n':
             if shop == 0:
+                # On récupère le rendu chez Malkin
                 money_entered = int(nb[:-1])
                 repaid = malkin(money_entered)
             elif shop == 1:
+                # On récupère le rendu petit à petit en fonction
+                # de la pièce de monnaie chez Ollivander
                 if money_type == 1:
+                    # Gallions
                     money_type = 2
                     nbs_entered[0] = int(nb[:-1])
                 elif money_type == 2:
+                    # Mornilles
                     money_type = 3
                     nbs_entered[1] = int(nb[:-1])
                 elif money_type == 3:
+                    # Noises
                     nbs_entered[2] = int(nb[:-1])
                     repaid = ollivander(nbs_entered)
+                    # On ne fait pas les test du coup on efface
+                    # le résulat dès qu'on appuie sur entrée
                     if not(tests_needed):
                         money_type = 1
                         nbs_entered = [0, 0, 0]
                 money_entered = int(nb[:-1])
             else:
+                # On récupère le rendu chez Fleury
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
+            # On réinitialise les entrées de l'utilisateur
             nb = ''
+        # Affichage du nombre entré
         if shop == 1:
+            # Chez Ollivander
             for i in range(money_type):
                 if i == money_type - 1:
                     display_text(nb + (str(nbs_entered[i]) if nb == '' else '') + money_list[i + 1], font, 75, yellow, 812, 260 + 75*(i +1))
                 else:
                     display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, yellow, 812, 260 + 75*(i +1))
         else:
+            # Chez les autres
             display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_list[money_type], font, 80, yellow, 812, 350)
+        # On affiche le rendu de la boutique avec le montant "repaid"
         give_back(repaid)
-        screen.blit(update_fps(), (10,0)) ################
+        # On rafraîchit l'écran
         pg.display.update()
+
+        # On attends plus ou moins longtemps pour mieux
+        # voir les tests s'effectuer automatiquement
+        # en plus de vérifier si l'on ne quitte/skippe pas
         if tests_needed or nb_tests == 20:
             for _ in range(35 if shop != 1 or step_ollivander_test == 3 else 10):
                 entry = user_entry()
                 if entry == 'QUIT':
                     return
                 elif entry == 'SKIP':
+                    # On passe les exemples
                     tests_needed = False
                     step_ollivander_test = 0
                     nb_tests = 0
                     nbs_entered = [0, 0, 0]
                     money_type = 1
+                # On attends 100 millisecondes
                 pg.time.wait(100)
+
+            # On réinitialise les variables à la fin de tous les tests
             if nb_tests == 20:
                 step_ollivander_test = 0
                 nb_tests = 0
@@ -337,25 +420,44 @@ def shop(shop):
 
 
 def description(mouse_pos, shop):
+    """
+    Fonction affichant un rectangle noir indiquant le magasin
+    sur lequel la souris est placée
+    
+    Entrée: La position de la souris
+            Le magasin pointé
+    """
     shop_text = Font.render(shop, 0, violet)
     shop_text_rect = shop_text.get_rect()
+
+    # On affiche le rectangle à doite puisqu'il y a de la place
     if shop_text_rect[2] + mouse_pos[0] + 26 <= 1624:
+        # On affiche un rectangle blanc puis noir puis on ymet le nom de la boutique
         pg.draw.rect(screen, black, (mouse_pos[0] + 12, mouse_pos[1] + 2, shop_text_rect[2] + 11, 36))
         pg.draw.rect(screen, white, (mouse_pos[0] + 10, mouse_pos[1], shop_text_rect[2] + 15, 40), width=3)
         screen.blit(shop_text, (mouse_pos[0] + 15, mouse_pos[1] + 10))
-    else :
+    # Il n'y a pas de place à droite, donc on le met à gauche
+    else:
         pg.draw.rect(screen, black, (mouse_pos[0] - shop_text_rect[2] - 22, mouse_pos[1] + 2, shop_text_rect[2] + 16, 36))
         pg.draw.rect(screen, white, (mouse_pos[0] - shop_text_rect[2] - 25, mouse_pos[1], shop_text_rect[2] + 20, 40), width=3)
         screen.blit(shop_text, (mouse_pos[0] - shop_text_rect[2] - 15, mouse_pos[1] + 10))
 
 
 def alley(mouse_pos):
+    """
+    Fonction affichant le menu de sélection de la boutique,
+    elle est ssurlignée quand la souris passe dessus et si l'on
+    clique on est transporté dedans
+
+    Entrée: La position de la souris
+    """
     # On affiche l'image du chemin de traverse
     screen.blit(img_chemin, (0, 0))
     # On surligne le magasin si on a la souris dessus
     if ollivander_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
         description(mouse_pos, "Ollivander")
+        # Un bouton de la souris a été pressé
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(1)
     elif flourish_and_blotts_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
@@ -370,24 +472,22 @@ def alley(mouse_pos):
             shop(0)
 
 
-# Affichage du nombre de FPS -- TEMPORAIRE ###########
-def update_fps():
-    Font = pg.font.SysFont("Arial", 18)
-    fps = str(int(clock.get_fps()))
-    fps_text = Font.render(fps, 1, pg.Color("coral"))
-    return fps_text
-
-
 def main():
+    """
+    Fonction principale ne se terminant que si l'utilisateur
+    quitte la fenêtre ou appuie sur esc
+    """
     while 1:
+        # On liste les évenements survenus
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
                 pg.quit()
                 quit()
 
+        # On affiche l'allée (menu principal)
         alley(pg.mouse.get_pos())
-
-        screen.blit(update_fps(), (10, 0))
+        # On rafraîchit l'écran et on limite le nombre
+        # de FPS à 30
         pg.display.update()
         clock.tick(FPS)
 
