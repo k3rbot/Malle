@@ -294,7 +294,7 @@ def shop(shop):
             else:
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
-            print(nb[:-1], "----", nbs_entered)
+            print(nb[:-1], "----", nbs_entered, nb_tests, step_ollivander_test)
             nb = ''
         if shop == 1:
             for i in range(money_type):
@@ -307,8 +307,8 @@ def shop(shop):
         give_back(repaid)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
-        if tests_needed or nb_tests == 15:
-            for _ in range(50 if shop != 1 or step_ollivander_test == 3 else 10):
+        if tests_needed or nb_tests == 20:
+            for _ in range(35 if shop != 1 or step_ollivander_test == 3 else 10):
                 if user_entry() == 'QUIT':
                     return
                 pg.time.wait(100)
