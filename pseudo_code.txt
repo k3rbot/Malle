@@ -1,3 +1,6 @@
+Ollivander :
+
+
 VARIABLES
 
 monnaie <- liste
@@ -14,3 +17,28 @@ Fonction ollivander (monnaie):
    Renvoyer monnaie_rendue
 
 Afficher ollivander((0, 0, 654))
+
+
+
+Fleury et Bott :
+
+
+
+VARIABLES
+
+monnaie <-- entier
+monnaie_rendue <-- dictionnaire
+monnaie_dispo <-- tuple
+
+Fonction flourish_and_blotts(monnaie) <-- dictionnaire:
+    vérifier que monnaie est un entier, afficher "Vos devez rentrer un nombre conforme"
+    
+    monnaie_dispo <-- (500, 200, 100, 50, 20, 10, 5, 2, 1)
+    monnaie_rendue <-- {500 : 0, 200 : 0, 100 : 0, 50 : 0, 20 : 0, 10 : 0, 5 : 0, 2 : 0, 1 : 0}
+
+    POUR billet dans monnaie_dispo:
+    monnaie_rendue[billet] = monnaie // billet
+    monnaie = reste de monnaie par billet
+    Fin POUR
+
+    Renvoyer monnaie_rendue
