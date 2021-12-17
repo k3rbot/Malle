@@ -79,9 +79,10 @@ malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
 dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 
-ollivander_tests_list = ((12, 5, 6), (0, 0, 654), (0, 23, 78), (2, 11, 9), (7, 531, 451))
+ollivander_tests_list = ((0, 0, 0), (0, 0, 654), (0, 23, 78), (2, 11, 9), (7, 531, 451))
 flourish_and_blotts_tests_list = (0, 60, 63, 231, 899)
 malkin_tests_list = (0, 8, 62, 231, 497, 842)
+
 
 def display_text(text, font, size, color, x, y, alignment=1):
     assert alignment == 0 or alignment == 1 or alignment == 2, "Alignment not valid"
@@ -96,6 +97,7 @@ def display_text(text, font, size, color, x, y, alignment=1):
     else:  # Alignement à droite
         screen.blit(text, (x - text_rect[2], y))
 
+
 def flourish_and_blotts(monnaie: int) -> dict:
     """
     Fonction permettant de savoir le nombre de
@@ -103,13 +105,13 @@ def flourish_and_blotts(monnaie: int) -> dict:
 
     Entrée: Montant à rendre
     Sortie: Dictionnaire comprenant la valeur de
-            le pièce/du billet et le nombre à rendre 
+            le pièce/du billet et le nombre à rendre
     """
     assert type(monnaie) == int, "Vous devez rentrer un nombre conforme"
 
     monnaie_dispo = (500, 200, 100, 50, 20, 10, 5, 2, 1)
-    monnaie_rendue = {500 : 0, 200 : 0, 100 : 0, 50 : 0,
-                    20 : 0, 10 : 0, 5 : 0, 2 : 0, 1 : 0}
+    monnaie_rendue = {500: 0, 200: 0, 100: 0, 50: 0,
+                    20: 0, 10: 0, 5: 0, 2: 0, 1: 0}
     for billet in monnaie_dispo:
         while monnaie >= billet:
             monnaie -= billet
@@ -117,12 +119,13 @@ def flourish_and_blotts(monnaie: int) -> dict:
 
     return monnaie_rendue
 
+
 """
 def malkin(rendu:int) -> dict:
    assert type(rendu) == int
 
-   caisse_dispo = {200: 1, 100 : 3, 50 : 1 ,  20: 1, 10: 1, 2 : 5}
-   rendu_caisse = {200 : 0, 100 : 0, 50 : 0, 20 : 0, 10: 0, 2 : 0}
+   caisse_dispo = {200: 1, 100: 3, 50: 1 ,  20: 1, 10: 1, 2: 5}
+   rendu_caisse = {200: 0, 100: 0, 50: 0, 20: 0, 10: 0, 2: 0}
    
    for thune in caisse_dispo :
        while rendu >= thune  :
@@ -141,6 +144,7 @@ print(malkin(497))
 print(malkin(842))
 """
 
+
 def ollivander(amount:list):
     """
     Fonction permettant de savoir comment rendre une somme
@@ -158,6 +162,7 @@ def ollivander(amount:list):
     monnaie_rendue[1] = amount[2] // 29 + amount[1] % 17
     monnaie_rendue[2] = amount[2] % 29
     return monnaie_rendue
+
 
 def user_entry(nb=''):
     for event in pg.event.get():
@@ -193,13 +198,14 @@ def user_entry(nb=''):
                 nb = 'QUIT'
     return nb
 
+
 def give_back(repaid):
     if repaid == {}:
         return
-    display_text("I'm giving you back :", font, 60, orange, 812, 450 if type(repaid) == dict else 550)
+    display_text("I'm giving you back :", font, 60, orange, 812, 450 if type(repaid) == dict else 560)
     i = 0
     for amount in repaid:
-        if type(repaid) == list:
+        if type(repaid) == list and amount > 0:
             i += 1
             display_text(f"{amount} {('Galleon' if i == 1 else 'Sickle' if i == 2 else 'Knut') + ('s' if amount > 1 else '')}", font, 80, green, 630, 590 + 85*i, alignment=0)
         elif repaid[amount] > 0:
@@ -207,7 +213,8 @@ def give_back(repaid):
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
             if type(amount) == int else f"{repaid[amount]} {amount}", font, 50, green, 600, 465 + 65*i, alignment=0)
     if i == 0:
-        display_text("Nothing to give you back !", font, 70, green, 812, 525, alignment=1)
+        display_text("Nothing to give you back !", font, 70, green, 812, 525 if type(repaid) == dict else 650, alignment=1)
+
 
 def shop(shop):
     assert shop == 0 or shop == 1 or shop == 2, "Wrong shop id: Unexistant"
@@ -287,11 +294,12 @@ def shop(shop):
             else:
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
+            print(nb[:-1], "----", nbs_entered)
             nb = ''
         if shop == 1:
             for i in range(money_type):
-                if i == money_type - 1 and not(tests_needed):
-                    display_text(nb + money_list[i + 1], font, 70, yellow, 812, 260 + 75*(i +1))
+                if i == money_type - 1:
+                    display_text(nb + (str(nbs_entered[i]) if nb == '' else '') + money_list[i + 1], font, 75, yellow, 812, 260 + 75*(i +1))
                 else:
                     display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, yellow, 812, 260 + 75*(i +1))
         else:
@@ -299,12 +307,13 @@ def shop(shop):
         give_back(repaid)
         screen.blit(update_fps(), (10,0)) ################
         pg.display.update()
-        if tests_needed:
-            for _ in range(25 if shop != 1 and step_ollivander_test == 0 else 10):
+        if tests_needed or nb_tests == 15:
+            for _ in range(50 if shop != 1 or step_ollivander_test == 3 else 10):
                 if user_entry() == 'QUIT':
                     return
                 pg.time.wait(100)
         clock.tick(FPS)
+
 
 def description(mouse_pos, shop):
     shop_text = Font.render(shop, 0, violet)
@@ -317,6 +326,7 @@ def description(mouse_pos, shop):
         pg.draw.rect(screen, black, (mouse_pos[0] - shop_text_rect[2] - 22, mouse_pos[1] + 2, shop_text_rect[2] + 16, 36))
         pg.draw.rect(screen, white, (mouse_pos[0] - shop_text_rect[2] - 25, mouse_pos[1], shop_text_rect[2] + 20, 40), width=3)
         screen.blit(shop_text, (mouse_pos[0] - shop_text_rect[2] - 15, mouse_pos[1] + 10))
+
 
 def alley(mouse_pos):
     # On affiche l'image du chemin de traverse
@@ -338,12 +348,14 @@ def alley(mouse_pos):
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(0)
 
+
 # Affichage du nombre de FPS -- TEMPORAIRE ###########
 def update_fps():
     Font = pg.font.SysFont("Arial", 18)
     fps = str(int(clock.get_fps()))
     fps_text = Font.render(fps, 1, pg.Color("coral"))
     return fps_text
+
 
 def main():
     while 1:
@@ -354,7 +366,7 @@ def main():
 
         alley(pg.mouse.get_pos())
 
-        screen.blit(update_fps(), (10,0))
+        screen.blit(update_fps(), (10, 0))
         pg.display.update()
         clock.tick(FPS)
 
