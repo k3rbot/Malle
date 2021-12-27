@@ -145,8 +145,6 @@ def malkin(rendu: int) -> dict:
             renverra rien
     """
     assert type(rendu) == int
-    if rendu > 590:
-        return
 
     monnaie_dispo = {200: 1, 100: 3, 50: 1, 20: 1, 10: 1, 2: 5}
     rendu_caisse = {200: 0, 100: 0, 50: 0, 20: 0, 10: 0, 2: 0, "impossible": False}
@@ -332,7 +330,10 @@ def shop(shop: int):
                 step_ollivander_test = 0
                 nb_tests = 0
                 nbs_entered = [0, 0, 0]
-                money_type = 1
+                if shop == 1:
+                    money_type = 1
+                else:
+                    money_type = 0
 
         # L'utilisateur choisit le montant à rendre
         else:
@@ -406,7 +407,10 @@ def shop(shop: int):
                     step_ollivander_test = 0
                     nb_tests = 0
                     nbs_entered = [0, 0, 0]
-                    money_type = 1
+                    if shop == 1:
+                        money_type = 1
+                    else:
+                        money_type = 0
                 # On attends 100 millisecondes
                 pg.time.wait(100)
 
