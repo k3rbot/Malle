@@ -25,6 +25,7 @@ img_chemin = pg.image.load("chemin_de_traverse.png")
 img_malkin = pg.image.load("malkin_shop.jpg")
 img_ollivander = pg.image.load("ollivander_shop.jpg")
 img_flourish_and_blotts = pg.image.load("flourish_and_blotts_shop.jpg")
+img_malle = pg.transform.rotozoom(pg.image.load("Malle-Harry-Potter.png"), 0, 1.05)
 
 # On définit la vitesse de rafraichissement à 30 FPS
 clock = pg.time.Clock()
@@ -71,6 +72,15 @@ malkin_cords = (
 )
 malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 malkin_rect = pg.draw.polygon(malkin_poly, transparent_yellow, malkin_cords)
+
+malle_cords = (
+    (649, 811), (858, 791), (868, 792), (957, 819),
+    (962, 822), (968, 827), (968, 942), (964, 949),
+    (754, 983), (748, 982), (647, 935), (644, 930),
+    (642, 924), (643, 816), (645, 813), (649, 811)
+)
+malle_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+malle_rect = pg.draw.polygon(malle_poly, transparent_yellow, malle_cords)
 
 # On prépare une surface sur laquelle on met un rectangle noir 
 # semi-transparent pour réduire la luminosité de l'image derrière
@@ -450,13 +460,14 @@ def description(mouse_pos, shop):
 def alley(mouse_pos):
     """
     Fonction affichant le menu de sélection de la boutique,
-    elle est ssurlignée quand la souris passe dessus et si l'on
+    elle est surlignée quand la souris passe dessus et si l'on
     clique on est transporté dedans
 
     Entrée: La position de la souris
     """
     # On affiche l'image du chemin de traverse
     screen.blit(img_chemin, (0, 0))
+    screen.blit(img_malle, (600, 750))
     # On surligne le magasin si on a la souris dessus
     if ollivander_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
@@ -474,6 +485,11 @@ def alley(mouse_pos):
         description(mouse_pos, "Madam Malkin's Robes for All Occasions")
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(0)
+    elif malle_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+        screen.blit(malle_poly, (0, 0))
+        description(mouse_pos, "Organize Harry's trunk")
+        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+            shop(3)
 
 
 def main():
@@ -487,6 +503,8 @@ def main():
             if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
                 pg.quit()
                 quit()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                print(pg.mouse.get_pos())
 
         # On affiche l'allée (menu principal)
         alley(pg.mouse.get_pos())
