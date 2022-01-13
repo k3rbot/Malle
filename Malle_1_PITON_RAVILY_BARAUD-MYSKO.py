@@ -90,7 +90,7 @@ pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 # Tous les tests à faire pour chaque maisons
 OLLIVANDER_TESTS = (('0', '0', '0'), ('0', '0', '654'), ('0', '23', '78'), ('2', '11', '9'), ('7', '531', '451'))
 FLOURISH_AND_BLOTTS_TESTS = ('0', '60', '63', '231', '899')
-MALKINTESTS = ('0', '8', '62', '231', '497', '842')
+MALKIN_TESTS = ('0', '8', '62', '231', '497', '842')
 
 
 def display_text(text: str, font: pg.font.Font, size: int, color: tuple, x: int, y: int, alignment=1):
@@ -192,12 +192,13 @@ def ollivander(monnaie:list) -> list:
     return monnaie_rendue
 
 
-def user_entry(nb='') -> str:
+def user_entry(nb='', numbers=True) -> str:
     """
     Fonction permettant de récupérer les entrées de l'utilisateur
 
-    Entrée: variable sur lequelle sera concaténée ou écrasée la
+    Entrée: - variable sur lequelle sera concaténée ou écrasée la
     valeur de l'entrée utilisateur
+            - bouléen pour avoir ou non les chiffres entrés par l'utilisateur
     Sortie: entrées de l'utilisateur
     """
     for event in pg.event.get():
@@ -205,36 +206,41 @@ def user_entry(nb='') -> str:
             pg.quit()
             quit()
         elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_KP0:
-                nb += '0'
-            elif event.key == pg.K_KP1:
-                nb += '1'
-            elif event.key == pg.K_KP2:
-                nb += '2'
-            elif event.key == pg.K_KP3:
-                nb += '3'
-            elif event.key == pg.K_KP4:
-                nb += '4'
-            elif event.key == pg.K_KP5:
-                nb += '5'
-            elif event.key == pg.K_KP6:
-                nb += '6'
-            elif event.key == pg.K_KP7:
-                nb += '7'
-            elif event.key == pg.K_KP8:
-                nb += '8'
-            elif event.key == pg.K_KP9:
-                nb += '9'
-            elif event.key == pg.K_BACKSPACE:
-                nb = nb[:-1]
-            elif (event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER) and nb != '':
+            if numbers:
+                if event.key == pg.K_KP0:
+                    nb += '0'
+                elif event.key == pg.K_KP1:
+                    nb += '1'
+                elif event.key == pg.K_KP2:
+                    nb += '2'
+                elif event.key == pg.K_KP3:
+                    nb += '3'
+                elif event.key == pg.K_KP4:
+                    nb += '4'
+                elif event.key == pg.K_KP5:
+                    nb += '5'
+                elif event.key == pg.K_KP6:
+                    nb += '6'
+                elif event.key == pg.K_KP7:
+                    nb += '7'
+                elif event.key == pg.K_KP8:
+                    nb += '8'
+                elif event.key == pg.K_KP9:
+                    nb += '9'
+                elif event.key == pg.K_BACKSPACE:
+                    nb = nb[:-1]
+            if (event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER) and nb != '':
                 nb += '\n'
+                break
             elif event.key == pg.K_ESCAPE:
                 nb = 'QUIT'
+                break
             elif event.key == pg.K_RIGHT:
                 nb += 'NEXT'
+                break
             elif event.key == pg.K_LEFT:
                 nb += 'PREVIOUS'
+                break
     return nb
 
 
@@ -306,7 +312,7 @@ def shop(shop: int):
         if tests_needed:
             # Chez Malkin
             if shop == 0:
-                nb = MALKINTESTS[nb_tests]
+                nb = MALKIN_TESTS[nb_tests]
                 if nb_tests == 4:
                     tests_needed = False
             # Chez Ollivander
@@ -315,56 +321,65 @@ def shop(shop: int):
                     nb += OLLIVANDER_TESTS[nb_tests][i] + (';' if i != 2 else '')
                 if nb_tests == 4:
                     tests_needed = False
+                    money_type = 0
+                else:
+                    money_type = 3
             # Chez Fleury
             elif shop == 2:
                 nb = FLOURISH_AND_BLOTTS_TESTS[nb_tests]
                 if nb_tests == 3:
                     tests_needed = False
-            if tests_needed:
-                # On récupère les entrées de l'utilisateur
-                entry = user_entry()
-                if entry == 'QUIT':
-                    return
-                elif entry == 'NEXT':
-                    if nb_tests != 5 and shop == 0 or nb_tests != 4 and shop == 1 or nb_tests != 4 and shop == 0:
-                        nb_tests += 1
-                    else:
-                        tests_needed = False
-                        nb = ''
-
-                elif entry == 'PREVIOUS':
-                    if nb_tests != 0:
-                        nb_tests -= 1
-                if shop == 1:
-                    money_type = 3
-                else:
-                    money_type = 0
             nb += '\n'
-
-        # L'utilisateur choisit le montant à rendre
+            nb = user_entry(nb, numbers=False)
+            if nb[-1:] == '\n' and nb[-2:] == '\n':
+                nb = nb[:-1]
         elif previous_test:
-            nb = previous_tests[previous_tests[0]]
+            nb = previous_tests[previous_tests[0]] + '\n'
+            nb = user_entry(nb, numbers=False)
+            if nb[-1:] == '\n' and nb[-2:] == '\n':
+                nb = nb[:-1]
         else:
             nb = user_entry(nb)
 
         if nb == 'QUIT':
             return
         elif nb[-4:] == 'NEXT':
-            if previous_test and previous_tests[0] < len(previous_tests) -1:
+            if tests_needed:
+                if nb_tests != 5 and shop == 0 or nb_tests != 4 and shop == 1 or nb_tests != 4 and shop == 2:
+                    nb_tests += 1
+                else:
+                    tests_needed = False
+                    nb = ''
+            if previous_tests[0] < len(previous_tests) -1:
                 previous_tests[0] += 1
-            else:
+                nb = ''
+            elif not(tests_needed):
                 previous_test = False
-            # On enlève le 'NEXT' puisqu'on ne fait plus les tests
-            nb = nb[:-4]
-        elif nb[-8:] == 'PREVIOUS':
-            if previous_test and previous_tests[0] > 0:
-                previous_tests[0] -= 1
+                nb = nb[:-4]
+                if nb[-1:] == '\n':
+                    nb = nb[:-1]
             else:
+                nb = nb[:-4]
+                if nb[-1:] == '\n':
+                    nb = nb[:-1]
+        elif nb[-8:] == 'PREVIOUS':
+            if tests_needed and nb_tests != 0:
+                nb_tests -= 1
+            if previous_tests[0] > 1:
+                previous_tests[0] -= 1
+                nb = ''
+            elif not(tests_needed):
                 previous_test = True
+                nb = nb[:-8]
+                if nb[-1:] == '\n':
+                    nb = nb[:-1]
+            else:
+                nb = nb[:-8]
+                if nb[-1:] == '\n':
+                    nb = nb[:-1]
         # L'utilisateur à appuyé sur entrée
         elif nb[-1:] == '\n':
             if shop == 0:
-                # On récupère le rendu chez Malkin
                 money_entered = int(nb[:-1])
                 repaid = malkin(money_entered)
                 if previous_tests[previous_tests[0]] != str(money_entered):
@@ -388,7 +403,6 @@ def shop(shop: int):
                             previous_tests.append(nbs_entered)
                             previous_tests[0] += 1
             else:
-                # On récupère le rendu chez Fleury
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
                 if previous_tests[previous_tests[0]] != str(money_entered):
@@ -397,7 +411,6 @@ def shop(shop: int):
             nb = ''
         # Affichage du nombre entré
         if shop == 1:
-            # Chez Ollivander
             nbs_entered = money_entered.split(';')
             for i in range(money_type):
                 if i == money_type - 1:
@@ -405,11 +418,10 @@ def shop(shop: int):
                 else:
                     display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, YELLOW, 812, 260 + 75*(i +1))
         else:
-            # Chez les autres
-            display_text(nb + (str(money_entered) if nb == '' and tests_needed else '') + money_list[money_type], font, 80, YELLOW, 812, 350)
-        # On affiche le rendu de la boutique avec le montant "repaid"
+            display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], font, 80, YELLOW, 812, 350)
         give_back(repaid)
-        # On rafraîchit l'écran
+        print(previous_tests, nb_tests)
+
         pg.display.update()
         clock.tick(FPS)
 
@@ -427,11 +439,10 @@ def description(mouse_pos, shop):
 
     # On affiche le rectangle à doite puisqu'il y a de la place
     if shop_text_rect[2] + mouse_pos[0] + 26 <= 1624:
-        # On affiche un rectangle blanc puis noir puis on ymet le nom de la boutique
         pg.draw.rect(screen, BLACK, (mouse_pos[0] + 12, mouse_pos[1] + 2, shop_text_rect[2] + 11, 36))
         pg.draw.rect(screen, WHITE, (mouse_pos[0] + 10, mouse_pos[1], shop_text_rect[2] + 15, 40), width=3)
         screen.blit(shop_text, (mouse_pos[0] + 15, mouse_pos[1] + 10))
-    # Il n'y a pas de place à droite, donc on le met à gauche
+    # Il n'y a pas de place à droite, on le met donc à gauche
     else:
         pg.draw.rect(screen, BLACK, (mouse_pos[0] - shop_text_rect[2] - 22, mouse_pos[1] + 2, shop_text_rect[2] + 16, 36))
         pg.draw.rect(screen, WHITE, (mouse_pos[0] - shop_text_rect[2] - 25, mouse_pos[1], shop_text_rect[2] + 20, 40), width=3)
@@ -484,8 +495,6 @@ def main():
             if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
                 pg.quit()
                 quit()
-            if event.type == pg.MOUSEBUTTONDOWN:
-                print(pg.mouse.get_pos())
 
         # On affiche l'allée (menu principal)
         alley(pg.mouse.get_pos())
