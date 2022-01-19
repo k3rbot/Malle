@@ -88,7 +88,7 @@ dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 
 # Tous les tests à faire pour chaque maisons
-OLLIVANDER_TESTS = (('0', '0', '0'), ('0', '0', '654'), ('0', '23', '78'), ('2', '11', '9'), ('7', '531', '451'))
+OLLIVANDER_TESTS = ('0;0;0', '0;0;654', '0;23;78', '2;11;9', '7;531;451')
 FLOURISH_AND_BLOTTS_TESTS = ('0', '60', '63', '231', '899')
 MALKIN_TESTS = ('0', '8', '62', '231', '497', '842')
 
@@ -252,7 +252,7 @@ def give_back(repaid: dict or list):
     """
     if repaid == {}:
         return
-    display_text("I'm giving you back :", font, 60, ORANGE, 812, 450 if type(repaid) == dict else 560)
+    display_text("I'm giving you back :", font, 70, ORANGE, 812, 450 if type(repaid) == dict else 580)
     i = 0
     for amount in repaid:
         if amount == "impossible":
@@ -267,7 +267,7 @@ def give_back(repaid: dict or list):
     if type(repaid) == dict and repaid["impossible"]:
         display_text("Can't give you enough money !", font, 70, GREEN, 812, 950, alignment=1)
     elif i == 0:
-        display_text("Nothing to give you back !", font, 70, GREEN, 812, 525 if type(repaid) == dict else 650, alignment=1)
+        display_text("Nothing !", font, 70, GREEN, 812, 560 if type(repaid) == dict else 700, alignment=1)
 
 
 def shop(shop: int):
@@ -282,16 +282,18 @@ def shop(shop: int):
     nb = ''
     repaid = {}
     money_entered = ''
-    tests_needed = True
-    nb_tests = 0
     money_list = (" euros", " galleons", " sickles", " knuts")
-    previous_test = False
-    previous_tests = [0]
-    if shop == 1:
-        # On est en Gallions chez Ollivander
+    previous_test = True
+    previous_tests = [1]
+    if shop == 0:
+        money_type = 0
+        previous_tests += list(MALKIN_TESTS)
+    elif shop == 1:
         money_type = 1
+        previous_tests += list(OLLIVANDER_TESTS)
     else:
         money_type = 0
+        previous_tests += list(FLOURISH_AND_BLOTTS_TESTS)
 
     while 1:
         # On affiche l'image de la boutique
@@ -306,121 +308,90 @@ def shop(shop: int):
             display_text("Welcome to Flourish and Blotts shop !", font, 90, VIOLET, 812, 100)
         # On l'assombrit
         screen.blit(dim, (0, 0))
-        display_text("Enter amount :", font, 70, YELLOW, 812, 250)
+        display_text("press esc to exit", font, 20, WHITE, 10, 0, alignment=0)
+        display_text("Use right and left arrows to move through examples and history", font, 20, WHITE, 1620, 1050, alignment=2)
 
-        # On fait les tests pour chaque boutique
-        if tests_needed:
-            # Chez Malkin
-            if shop == 0:
-                nb = MALKIN_TESTS[nb_tests]
-                if nb_tests == 4:
-                    tests_needed = False
-            # Chez Ollivander
-            elif shop == 1:
-                for i in range(3):
-                    nb += OLLIVANDER_TESTS[nb_tests][i] + (';' if i != 2 else '')
-                if nb_tests == 4:
-                    tests_needed = False
-                    money_type = 0
-                else:
-                    money_type = 3
-            # Chez Fleury
-            elif shop == 2:
-                nb = FLOURISH_AND_BLOTTS_TESTS[nb_tests]
-                if nb_tests == 3:
-                    tests_needed = False
+        if previous_test:
+            display_text("With :", font, 90, YELLOW, 812, 250)
+            nb = previous_tests[previous_tests[0]]
             nb += '\n'
             nb = user_entry(nb, numbers=False)
             if nb[-1:] == '\n' and nb[-2:] == '\n':
                 nb = nb[:-1]
-        elif previous_test:
-            nb = previous_tests[previous_tests[0]] + '\n'
-            nb = user_entry(nb, numbers=False)
-            if nb[-1:] == '\n' and nb[-2:] == '\n':
-                nb = nb[:-1]
         else:
+            display_text("Enter amount :", font, 70, YELLOW, 812, 250)
             nb = user_entry(nb)
 
         if nb == 'QUIT':
             return
         elif nb[-4:] == 'NEXT':
-            if tests_needed:
-                if nb_tests != 5 and shop == 0 or nb_tests != 4 and shop == 1 or nb_tests != 4 and shop == 2:
-                    nb_tests += 1
-                else:
-                    tests_needed = False
-                    nb = ''
-            if previous_tests[0] < len(previous_tests) -1:
+            if previous_tests[0] < (len(previous_tests) - 1) and previous_test:
                 previous_tests[0] += 1
                 nb = ''
-            elif not(tests_needed):
+            elif previous_test:
                 previous_test = False
-                nb = nb[:-4]
-                if nb[-1:] == '\n':
-                    nb = nb[:-1]
-            else:
-                nb = nb[:-4]
-                if nb[-1:] == '\n':
-                    nb = nb[:-1]
+                nb = ''
+                money_entered = 0
+            nb = nb[:-4]
         elif nb[-8:] == 'PREVIOUS':
-            if tests_needed and nb_tests != 0:
-                nb_tests -= 1
-            if previous_tests[0] > 1:
+            if previous_tests[0] > 1 and previous_test:
                 previous_tests[0] -= 1
                 nb = ''
-            elif not(tests_needed):
+            elif not(previous_test):
                 previous_test = True
-                nb = nb[:-8]
-                if nb[-1:] == '\n':
-                    nb = nb[:-1]
-            else:
-                nb = nb[:-8]
-                if nb[-1:] == '\n':
-                    nb = nb[:-1]
-        # L'utilisateur à appuyé sur entrée
-        elif nb[-1:] == '\n':
+                nb = ''
+            nb = nb[:-8]
+        if nb[-1:] == '\n':
             if shop == 0:
                 money_entered = int(nb[:-1])
                 repaid = malkin(money_entered)
-                if previous_tests[previous_tests[0]] != str(money_entered):
+                if not(previous_test):
                     previous_tests.append(str(money_entered))
                     previous_tests[0] += 1
             elif shop == 1:
+                if previous_test:
+                    money_type = 3
+                    nbs_entered = nb.split(';')
+                    for i in range(3):
+                        nbs_entered[i] = int(nbs_entered[i])
                 if money_type == 1:  # Gallions
                     money_type = 2
-                    money_entered = nb[:-1] + ';'
-                    previous_tests.append(money_entered)
-                    previous_tests[0] += 1
+                    nbs_entered.append(int(nb[:-1]))
                 elif money_type == 2:  # Mornilles
                     money_type = 3
-                    money_entered += nb[:-1] + ';'
+                    nbs_entered.append(int(nb[:-1]))
                 elif money_type == 3:  # Noises
-                    money_entered += nb[:-1]
-                    nbs_entered = money_entered.split(';')
+                    if not(previous_test):
+                        nbs_entered.append(int(nb[:-1]))
+                        money_entered = ''
+                        for i in range(3):
+                            money_entered += str(nbs_entered[i]) + ';'
+                        previous_tests.append(money_entered)
+                        previous_tests[0] += 1
                     repaid = ollivander(nbs_entered)
-                    if previous_tests[previous_tests[0]] != money_entered:
-                        if previous_tests[previous_tests[0]] != nbs_entered:
-                            previous_tests.append(nbs_entered)
-                            previous_tests[0] += 1
             else:
                 money_entered = int(nb[:-1])
                 repaid = flourish_and_blotts(money_entered)
-                if previous_tests[previous_tests[0]] != str(money_entered):
+                if not(previous_test):
                     previous_tests.append(str(money_entered))
                     previous_tests[0] += 1
             nb = ''
+        if nb != '' and shop == 1 and money_type == 3 and len(nbs_entered) == 3:
+            money_type = 1
+            nbs_entered = []
+
+        print(previous_tests, previous_test, nb, money_entered, money_type)
         # Affichage du nombre entré
         if shop == 1:
-            nbs_entered = money_entered.split(';')
             for i in range(money_type):
                 if i == money_type - 1:
-                    display_text(nb + (str(nbs_entered[i]) if nb == '' else '') + money_list[i + 1], font, 75, YELLOW, 812, 260 + 75*(i +1))
+                    display_text(nb + (str(nbs_entered[i]) if nb == '' and len(nbs_entered) > i else '') + money_list[i + 1], font, 75, YELLOW, 812, 270 + 78*(i +1))
                 else:
-                    display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, YELLOW, 812, 260 + 75*(i +1))
+                    display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, YELLOW, 812, 270 + 78*(i +1))
         else:
             display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], font, 80, YELLOW, 812, 350)
-        give_back(repaid)
-        print(previous_tests, nb_tests)
+        if nb == '' and (shop != 1 or (shop == 1 and money_type == 3 and len(nbs_entered) == 3)):
+            give_back(repaid)
 
         pg.display.update()
         clock.tick(FPS)
@@ -460,6 +431,7 @@ def alley(mouse_pos):
     # On affiche l'image du chemin de traverse
     screen.blit(IMG_CHEMIN, (0, 0))
     screen.blit(IMG_MALLE, (600, 750))
+    display_text("press esc to exit", font, 20, WHITE, 10, 0, alignment=0)
     # On surligne le magasin si on a la souris dessus
     if OLLIVANDER_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
