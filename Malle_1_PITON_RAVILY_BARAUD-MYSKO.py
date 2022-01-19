@@ -7,6 +7,9 @@ os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
 # On initialise la fenêtre de 1624 par 1080 pixels (la taille de la photo)
 screen = pg.display.set_mode((1624, 1080))
 
+pg.event.set_allowed([pg.QUIT, pg.KEYDOWN])
+
+
 # On définit plusieurs couleurs au format rgb
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -17,19 +20,19 @@ TRANSPARENT_YELLOW = (255, 240, 0, 85)
 ORANGE = (255, 140, 0)
 
 # On utilise une police d"écriture spécifique
-font = "HarryPotterFont.ttf"
-Font = pg.font.Font(font, 20)
+FONT = "HarryPotterFont.ttf"
+Font = pg.font.Font(FONT, 20)
 
 # On charge les différentes images
-IMG_CHEMIN = pg.image.load("chemin_de_traverse.png")
-IMG_MALKIN = pg.image.load("malkin_shop.jpg")
-IMG_OLLIVANDER = pg.image.load("ollivander_shop.jpg")
-IMG_FLOURISH_AND_BLOTTS = pg.image.load("flourish_and_blotts_shop.jpg")
-IMG_MALLE = pg.transform.rotozoom(pg.image.load("Malle-Harry-Potter.png"), 0, 1.05)
+IMG_CHEMIN = pg.image.load("chemin_de_traverse.png").convert()
+IMG_MALKIN = pg.image.load("malkin_shop.jpg").convert()
+IMG_OLLIVANDER = pg.image.load("ollivander_shop.jpg").convert()
+IMG_FLOURISH_AND_BLOTTS = pg.image.load("flourish_and_blotts_shop.jpg").convert()
+IMG_MALLE = pg.transform.rotozoom(pg.image.load("Malle-Harry-Potter.png"), 0, 1.05).convert_alpha()
 
 # On définit la vitesse de rafraichissement à 30 FPS
 clock = pg.time.Clock()
-FPS = 30
+FPS = 600
 
 # On définit le titre de la fenêtre
 pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
@@ -252,22 +255,22 @@ def give_back(repaid: dict or list):
     """
     if repaid == {}:
         return
-    display_text("I'm giving you back :", font, 70, ORANGE, 812, 450 if type(repaid) == dict else 580)
+    display_text("I'm giving you back :", FONT, 70, ORANGE, 812, 450 if type(repaid) == dict else 580)
     i = 0
     for amount in repaid:
         if amount == "impossible":
             break
         if type(repaid) == list and amount > 0:
             i += 1
-            display_text(f"{amount} {('Galleon' if i == 1 else 'Sickle' if i == 2 else 'Knut') + ('s' if amount > 1 else '')}", font, 80, GREEN, 630, 590 + 85*i, alignment=0)
+            display_text(f"{amount} {('Galleon' if i == 1 else ('Sickle' if i == 2 else 'Knut')) + ('s' if amount > 1 else '')}", FONT, 80, GREEN, 630, 590 + 85*i, alignment=0)
         elif repaid[amount] > 0:
             i += 1
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
-            if type(amount) == int else f"{repaid[amount]} {amount}", font, 50, GREEN, 600, 465 + 65*i, alignment=0)
+            if type(amount) == int else f"{repaid[amount]} {amount}", FONT, 50, GREEN, 600, 465 + 65*i, alignment=0)
     if type(repaid) == dict and repaid["impossible"]:
-        display_text("Can't give you enough money !", font, 70, GREEN, 812, 950, alignment=1)
+        display_text("Can't give you enough money !", FONT, 70, GREEN, 812, 950, alignment=1)
     elif i == 0:
-        display_text("Nothing !", font, 70, GREEN, 812, 560 if type(repaid) == dict else 700, alignment=1)
+        display_text("Nothing !", FONT, 70, GREEN, 812, 560 if type(repaid) == dict else 700, alignment=1)
 
 
 def shop(shop: int):
@@ -299,27 +302,27 @@ def shop(shop: int):
         # On affiche l'image de la boutique
         if shop == 0:
             screen.blit(IMG_MALKIN, (0, 0))
-            display_text("Welcome to Madam's Malkin shop !", font, 90, VIOLET, 812, 100)
+            display_text("Welcome to Madam's Malkin shop !", FONT, 90, VIOLET, 812, 100)
         elif shop == 1:
             screen.blit(IMG_OLLIVANDER, (0, 0))
-            display_text("Welcome to Ollivander's shop !", font, 90, VIOLET, 812, 100)
+            display_text("Welcome to Ollivander's shop !", FONT, 90, VIOLET, 812, 100)
         else:
             screen.blit(IMG_FLOURISH_AND_BLOTTS, (0, 0))
-            display_text("Welcome to Flourish and Blotts shop !", font, 90, VIOLET, 812, 100)
+            display_text("Welcome to Flourish and Blotts shop !", FONT, 90, VIOLET, 812, 100)
         # On l'assombrit
         screen.blit(dim, (0, 0))
-        display_text("press esc to exit", font, 20, WHITE, 10, 0, alignment=0)
-        display_text("Use right and left arrows to move through examples and history", font, 20, WHITE, 1620, 1050, alignment=2)
+        display_text("press esc to exit", FONT, 20, WHITE, 10, 0, alignment=0)
+        display_text("Use right and left arrows to move through examples and history", FONT, 20, WHITE, 1620, 1050, alignment=2)
 
         if previous_test:
-            display_text("With :", font, 90, YELLOW, 812, 250)
+            display_text("With :", FONT, 90, YELLOW, 812, 250)
             nb = previous_tests[previous_tests[0]]
             nb += '\n'
             nb = user_entry(nb, numbers=False)
             if nb[-1:] == '\n' and nb[-2:] == '\n':
                 nb = nb[:-1]
         else:
-            display_text("Enter amount :", font, 70, YELLOW, 812, 250)
+            display_text("Enter amount :", FONT, 70, YELLOW, 812, 250)
             nb = user_entry(nb)
 
         if nb == 'QUIT':
@@ -380,19 +383,18 @@ def shop(shop: int):
             money_type = 1
             nbs_entered = []
 
-        print(previous_tests, previous_test, nb, money_entered, money_type)
         # Affichage du nombre entré
         if shop == 1:
             for i in range(money_type):
                 if i == money_type - 1:
-                    display_text(nb + (str(nbs_entered[i]) if nb == '' and len(nbs_entered) > i else '') + money_list[i + 1], font, 75, YELLOW, 812, 270 + 78*(i +1))
+                    display_text(nb + (str(nbs_entered[i]) if nb == '' and len(nbs_entered) > i else '') + money_list[i + 1], FONT, 75, YELLOW, 812, 270 + 78*(i +1))
                 else:
-                    display_text(str(nbs_entered[i]) + money_list[i + 1], font, 60, YELLOW, 812, 270 + 78*(i +1))
+                    display_text(str(nbs_entered[i]) + money_list[i + 1], FONT, 60, YELLOW, 812, 270 + 78*(i +1))
         else:
-            display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], font, 80, YELLOW, 812, 350)
+            display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], FONT, 80, YELLOW, 812, 350)
         if nb == '' and (shop != 1 or (shop == 1 and money_type == 3 and len(nbs_entered) == 3)):
             give_back(repaid)
-
+        screen.blit(update_fps(), (10, 1060))
         pg.display.update()
         clock.tick(FPS)
 
@@ -431,7 +433,7 @@ def alley(mouse_pos):
     # On affiche l'image du chemin de traverse
     screen.blit(IMG_CHEMIN, (0, 0))
     screen.blit(IMG_MALLE, (600, 750))
-    display_text("press esc to exit", font, 20, WHITE, 10, 0, alignment=0)
+    display_text("press esc to exit", FONT, 20, WHITE, 10, 0, alignment=0)
     # On surligne le magasin si on a la souris dessus
     if OLLIVANDER_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
@@ -455,6 +457,11 @@ def alley(mouse_pos):
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(3)
 
+def update_fps():
+    Font = pg.font.SysFont("Arial", 18)
+    fps = str(int(clock.get_fps()))
+    fps_text = Font.render(fps, 1, pg.Color("coral"))
+    return fps_text
 
 def main():
     """
@@ -470,6 +477,7 @@ def main():
 
         # On affiche l'allée (menu principal)
         alley(pg.mouse.get_pos())
+        screen.blit(update_fps(), (10, 1060))
         # On rafraîchit l'écran et on limite le nombre
         # de FPS à 30
         pg.display.update()
