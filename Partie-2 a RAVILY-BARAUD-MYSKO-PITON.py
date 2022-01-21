@@ -10,7 +10,7 @@ fournitures_scolaires = \
 {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
 '''
-On définit une fonction remplissage_malle.
+On définit une fonction remplissage_malle qui va nous servir a remplir la nouvelle malle d'Harry avec les fournitures.
 Entrée:On va chercher dans la liste des fournitures les éléments dans l'ordre
 Sortie:On renvoye la fonction malle_harry ou on a rempli avec les éléments dans l'ordre sans dépasser le poids maximal
 '''
