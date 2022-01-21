@@ -19,9 +19,13 @@ YELLOW = (255, 255, 0)
 TRANSPARENT_YELLOW = (255, 240, 0, 85)
 ORANGE = (255, 140, 0)
 
-# On utilise une police d"écriture spécifique
-FONT = "HarryPotterFont.ttf"
-Font = pg.font.Font(FONT, 20)
+# On "génère" la police d'écriture Harry Potter en 100 tailles différentes;
+# Si on la "générais" au moment de l'utiliser on utiliserai énormément 
+# le disque dur et on perdrai du temps inutilement
+# En faisant ainsi on multiplie par 2 voire 3 le nombre de FPS
+Font = []
+for i in range(100):
+    Font.append(pg.font.Font("HarryPotterFont.ttf", i))
 
 # On charge les différentes images
 IMG_CHEMIN = pg.image.load("chemin_de_traverse.png").convert()
@@ -29,10 +33,11 @@ IMG_MALKIN = pg.image.load("malkin_shop.jpg").convert()
 IMG_OLLIVANDER = pg.image.load("ollivander_shop.jpg").convert()
 IMG_FLOURISH_AND_BLOTTS = pg.image.load("flourish_and_blotts_shop.jpg").convert()
 IMG_MALLE = pg.transform.rotozoom(pg.image.load("Malle-Harry-Potter.png"), 0, 1.05).convert_alpha()
+IMG_MALLE_OPEN = pg.image.load("Malle-Harry-Potter-ouverte.png").convert_alpha()
 
 # On définit la vitesse de rafraichissement à 30 FPS
 clock = pg.time.Clock()
-FPS = 600
+FPS = 60
 
 # On définit le titre de la fenêtre
 pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
@@ -47,7 +52,7 @@ OLLIVANDER_CORDS = (
     (778, 584), (778, 596), (783, 602), (783, 669),
     (784, 677), (780, 707)
 )
-# La surface sur laquelle on met notre polygone accepte la notion de transparence
+# La surface sur laquelle on met notre polygone et qui accepte la notion de transparence
 ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 OLLIVANDER_RECT = pg.draw.polygon(ollivander_poly, TRANSPARENT_YELLOW, OLLIVANDER_CORDS)
 
@@ -96,12 +101,12 @@ FLOURISH_AND_BLOTTS_TESTS = ('0', '60', '63', '231', '899')
 MALKIN_TESTS = ('0', '8', '62', '231', '497', '842')
 
 
-def display_text(text: str, font: pg.font.Font, size: int, color: tuple, x: int, y: int, alignment=1):
+def display_text(text: str, font: list, size: int, color: tuple, x: int, y: int, alignment=1):
     """
     Fonction permettant l'affichage d'un texte
 
     Entrée: text: Le texte à afficher
-            font: La police d'écriture à utiliser
+            font: La police d'écriture sous forme d'un tableau de polices toutes les tailles (100 max ici)
             size: La taille de la police
             color: La couleur de la police de type (r, g, b)
             x: L'emplacement du texte sur l'axe horizontal
@@ -111,10 +116,10 @@ def display_text(text: str, font: pg.font.Font, size: int, color: tuple, x: int,
                         1: Texte centré
                         2: Texte aligné à droite
     """
+    assert size <= 100, "Size limit exceeded"
     assert alignment == 0 or alignment == 1 or alignment == 2, "Alignment not valid"
 
-    font = pg.font.Font(font, size)
-    text = font.render(text, 0, color)
+    text = font[size].render(text, 0, color)
     text_rect = text.get_rect()
     if alignment == 0:  # Alignement à gauche
         screen.blit(text, (x, y))
@@ -255,22 +260,22 @@ def give_back(repaid: dict or list):
     """
     if repaid == {}:
         return
-    display_text("I'm giving you back :", FONT, 70, ORANGE, 812, 450 if type(repaid) == dict else 580)
+    display_text("I'm giving you back :", Font, 70, ORANGE, 812, 450 if type(repaid) == dict else 580)
     i = 0
     for amount in repaid:
         if amount == "impossible":
             break
         if type(repaid) == list and amount > 0:
             i += 1
-            display_text(f"{amount} {('Galleon' if i == 1 else ('Sickle' if i == 2 else 'Knut')) + ('s' if amount > 1 else '')}", FONT, 80, GREEN, 630, 590 + 85*i, alignment=0)
+            display_text(f"{amount} {('Galleon' if i == 1 else ('Sickle' if i == 2 else 'Knut')) + ('s' if amount > 1 else '')}", Font, 80, GREEN, 630, 590 + 85*i, alignment=0)
         elif repaid[amount] > 0:
             i += 1
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
-            if type(amount) == int else f"{repaid[amount]} {amount}", FONT, 50, GREEN, 600, 465 + 65*i, alignment=0)
+            if type(amount) == int else f"{repaid[amount]} {amount}", Font, 50, GREEN, 600, 465 + 65*i, alignment=0)
     if type(repaid) == dict and repaid["impossible"]:
-        display_text("Can't give you enough money !", FONT, 70, GREEN, 812, 950, alignment=1)
+        display_text("Can't give you enough money !", Font, 70, GREEN, 812, 950, alignment=1)
     elif i == 0:
-        display_text("Nothing !", FONT, 70, GREEN, 812, 560 if type(repaid) == dict else 700, alignment=1)
+        display_text("Nothing !", Font, 70, GREEN, 812, 560 if type(repaid) == dict else 700, alignment=1)
 
 
 def shop(shop: int):
@@ -280,7 +285,7 @@ def shop(shop: int):
     Entrée: id de la boutique 0: Malkin, 1: Ollivander,
     2: Flourish and Blotts
     """
-    assert shop == 0 or shop == 1 or shop == 2, "Wrong shop id: Unexistant"
+    assert shop == 0 or shop == 1 or shop == 2 or shop == 3, "Wrong shop id: Unexistant"
 
     nb = ''
     repaid = {}
@@ -294,132 +299,184 @@ def shop(shop: int):
     elif shop == 1:
         money_type = 1
         previous_tests += list(OLLIVANDER_TESTS)
-    else:
+    elif shop == 2:
         money_type = 0
         previous_tests += list(FLOURISH_AND_BLOTTS_TESTS)
+    else:
+        button_anything_rect = rectangle_text((1200, 300), "Take anything", 30, WHITE)
+        button_weight_rect = rectangle_text((1200, 400), "Max weight", 30, WHITE)
+        button_mana_rect = rectangle_text((1200, 500), "Max mana", 30, WHITE)
+        button_ratio_rect = rectangle_text((1200, 600), "Best ratio mana/weight", 30, WHITE)
+        button_best_rect = rectangle_text((1200, 700), "Best management", 30, WHITE)
 
     while 1:
-        # On affiche l'image de la boutique
+        # On affiche l'image de la boutique et on l'assombrit
         if shop == 0:
             screen.blit(IMG_MALKIN, (0, 0))
-            display_text("Welcome to Madam's Malkin shop !", FONT, 90, VIOLET, 812, 100)
+            display_text("Welcome to Madam's Malkin shop !", Font, 90, VIOLET, 812, 100)
+            screen.blit(dim, (0, 0))
         elif shop == 1:
             screen.blit(IMG_OLLIVANDER, (0, 0))
-            display_text("Welcome to Ollivander's shop !", FONT, 90, VIOLET, 812, 100)
-        else:
+            display_text("Welcome to Ollivander's shop !", Font, 90, VIOLET, 812, 100)
+            screen.blit(dim, (0, 0))
+        elif shop == 2:
             screen.blit(IMG_FLOURISH_AND_BLOTTS, (0, 0))
-            display_text("Welcome to Flourish and Blotts shop !", FONT, 90, VIOLET, 812, 100)
-        # On l'assombrit
-        screen.blit(dim, (0, 0))
-        display_text("press esc to exit", FONT, 20, WHITE, 10, 0, alignment=0)
-        display_text("Use right and left arrows to move through examples and history", FONT, 20, WHITE, 1620, 1050, alignment=2)
-
-        if previous_test:
-            display_text("With :", FONT, 90, YELLOW, 812, 250)
-            nb = previous_tests[previous_tests[0]]
-            nb += '\n'
-            nb = user_entry(nb, numbers=False)
-            if nb[-1:] == '\n' and nb[-2:] == '\n':
-                nb = nb[:-1]
+            display_text("Welcome to Flourish and Blotts shop !", Font, 90, VIOLET, 812, 100)
+            screen.blit(dim, (0, 0))
         else:
-            display_text("Enter amount :", FONT, 70, YELLOW, 812, 250)
-            nb = user_entry(nb)
+            screen.fill((255, 150, 0))
+            screen.blit(IMG_MALLE_OPEN, (450, 300))
+            display_text("Let's organize Harry's trunk !", Font, 90, VIOLET, 812, 100)
+        display_text("press esc to go back to menu", Font, 20, WHITE, 10, 0, alignment=0)
 
-        if nb == 'QUIT':
-            return
-        elif nb[-4:] == 'NEXT':
-            if previous_tests[0] < (len(previous_tests) - 1) and previous_test:
-                previous_tests[0] += 1
-                nb = ''
-            elif previous_test:
-                previous_test = False
-                nb = ''
-                money_entered = 0
-            nb = nb[:-4]
-        elif nb[-8:] == 'PREVIOUS':
-            if previous_tests[0] > 1 and previous_test:
-                previous_tests[0] -= 1
-                nb = ''
-            elif not(previous_test):
-                previous_test = True
-                nb = ''
-            nb = nb[:-8]
-        if nb[-1:] == '\n':
-            if shop == 0:
-                money_entered = int(nb[:-1])
-                repaid = malkin(money_entered)
-                if not(previous_test):
-                    previous_tests.append(str(money_entered))
-                    previous_tests[0] += 1
-            elif shop == 1:
-                if previous_test:
-                    money_type = 3
-                    nbs_entered = nb.split(';')
-                    for i in range(3):
-                        nbs_entered[i] = int(nbs_entered[i])
-                if money_type == 1:  # Gallions
-                    money_type = 2
-                    nbs_entered.append(int(nb[:-1]))
-                elif money_type == 2:  # Mornilles
-                    money_type = 3
-                    nbs_entered.append(int(nb[:-1]))
-                elif money_type == 3:  # Noises
-                    if not(previous_test):
-                        nbs_entered.append(int(nb[:-1]))
-                        money_entered = ''
-                        for i in range(3):
-                            money_entered += str(nbs_entered[i]) + ';'
-                        previous_tests.append(money_entered)
-                        previous_tests[0] += 1
-                    repaid = ollivander(nbs_entered)
+        if shop != 3:
+            display_text("Use right and left arrows to move through examples and history", Font, 20, WHITE, 1620, 1050, alignment=2)
+
+            if previous_test:
+                display_text("With :", Font, 90, YELLOW, 812, 250)
+                nb = previous_tests[previous_tests[0]]
+                nb += '\n'
+                nb = user_entry(nb, numbers=False)
+                if nb[-1:] == '\n' and nb[-2:] == '\n':
+                    nb = nb[:-1]
             else:
-                money_entered = int(nb[:-1])
-                repaid = flourish_and_blotts(money_entered)
-                if not(previous_test):
-                    previous_tests.append(str(money_entered))
-                    previous_tests[0] += 1
-            nb = ''
-        if nb != '' and shop == 1 and money_type == 3 and len(nbs_entered) == 3:
-            money_type = 1
-            nbs_entered = []
+                display_text("Enter amount :", Font, 70, YELLOW, 812, 250)
+                nb = user_entry(nb)
 
-        # Affichage du nombre entré
-        if shop == 1:
-            for i in range(money_type):
-                if i == money_type - 1:
-                    display_text(nb + (str(nbs_entered[i]) if nb == '' and len(nbs_entered) > i else '') + money_list[i + 1], FONT, 75, YELLOW, 812, 270 + 78*(i +1))
+            if nb == 'QUIT':
+                return
+            elif nb[-4:] == 'NEXT':
+                if previous_tests[0] < (len(previous_tests) - 1) and previous_test:
+                    previous_tests[0] += 1
+                    nb = ''
+                elif previous_test:
+                    previous_test = False
+                    nb = ''
+                    money_entered = 0
+                nb = nb[:-4]
+            elif nb[-8:] == 'PREVIOUS':
+                if previous_tests[0] > 1 and previous_test:
+                    previous_tests[0] -= 1
+                    nb = ''
+                elif not(previous_test):
+                    previous_test = True
+                    nb = ''
+                nb = nb[:-8]
+            if nb[-1:] == '\n':
+                if shop == 0:
+                    money_entered = int(nb[:-1])
+                    repaid = malkin(money_entered)
+                    if not(previous_test):
+                        previous_tests.append(str(money_entered))
+                        previous_tests[0] += 1
+                elif shop == 1:
+                    if previous_test:
+                        money_type = 3
+                        nbs_entered = nb.split(';')
+                        for i in range(3):
+                            nbs_entered[i] = int(nbs_entered[i])
+                    if money_type == 1:  # Gallions
+                        money_type = 2
+                        nbs_entered.append(int(nb[:-1]))
+                    elif money_type == 2:  # Mornilles
+                        money_type = 3
+                        nbs_entered.append(int(nb[:-1]))
+                    elif money_type == 3:  # Noises
+                        if not(previous_test):
+                            nbs_entered.append(int(nb[:-1]))
+                            money_entered = ''
+                            for i in range(3):
+                                money_entered += str(nbs_entered[i]) + ';'
+                            previous_tests.append(money_entered)
+                            previous_tests[0] += 1
+                        repaid = ollivander(nbs_entered)
                 else:
-                    display_text(str(nbs_entered[i]) + money_list[i + 1], FONT, 60, YELLOW, 812, 270 + 78*(i +1))
+                    money_entered = int(nb[:-1])
+                    repaid = flourish_and_blotts(money_entered)
+                    if not(previous_test):
+                        previous_tests.append(str(money_entered))
+                        previous_tests[0] += 1
+                nb = ''
+            if nb != '' and shop == 1 and money_type == 3 and len(nbs_entered) == 3:
+                money_type = 1
+                nbs_entered = []
+
+            # Affichage du nombre entré
+            if shop == 1:
+                for i in range(money_type):
+                    if i == money_type - 1:
+                        display_text(nb + (str(nbs_entered[i]) if nb == '' and len(nbs_entered) > i else '') + money_list[i + 1], Font, 75, YELLOW, 812, 270 + 78*(i +1))
+                    else:
+                        display_text(str(nbs_entered[i]) + money_list[i + 1], Font, 60, YELLOW, 812, 270 + 78*(i +1))
+            else:
+                display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], Font, 80, YELLOW, 812, 350)
+            if nb == '' and (shop != 1 or (shop == 1 and money_type == 3 and len(nbs_entered) == 3)):
+                give_back(repaid)
         else:
-            display_text(nb + (str(money_entered) if nb == '' else '') + money_list[money_type], FONT, 80, YELLOW, 812, 350)
-        if nb == '' and (shop != 1 or (shop == 1 and money_type == 3 and len(nbs_entered) == 3)):
-            give_back(repaid)
-        screen.blit(update_fps(), (10, 1060))
+            mouse_down = False
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    quit()
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    mouse_down = True
+                elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                    return
+            mouse_pos = pg.mouse.get_pos()
+            rectangle_text((1200, 300), "Take anything", 30, GREEN)
+            rectangle_text((1200, 400), "Max weight", 30, GREEN)
+            rectangle_text((1200, 500), "Max mana", 30, GREEN)
+            rectangle_text((1200, 600), "Best ratio mana/weight", 30, GREEN)
+            rectangle_text((1200, 700), "Best management", 30, GREEN)
+
+            if button_anything_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                rectangle_text((1175, 290), "Take anything", 40, GREEN)
+                if mouse_down:
+                    print("Anything")
+            elif button_weight_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                rectangle_text((1175, 390), "Max weight", 40, GREEN)
+                if mouse_down:
+                    print("Weight")
+            elif button_mana_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                rectangle_text((1175, 490), "Max mana", 40, GREEN)
+                if mouse_down:
+                    print("Mana")
+            elif button_ratio_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                rectangle_text((1175, 590), "Best ratio mana/weight", 40, GREEN)
+                if mouse_down:
+                    print("Ratio")
+            elif button_best_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                rectangle_text((1175, 690), "Best management", 40, GREEN)
+                if mouse_down:
+                    print("Best")
+
         pg.display.update()
         clock.tick(FPS)
 
 
-def description(mouse_pos, shop):
+def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
     """
-    Fonction affichant un rectangle noir indiquant le magasin
-    sur lequel la souris est placée
+    Fonction affichant un rectangle contenant du texte
     
-    Entrée: La position de la souris
-            Le magasin pointé
+    Entrée: La position du rectangle (en partant de l'angle du haut à gauche + 10 pixels)
+            Le texte à afficher dans le rectangle
+            La taille de la police d'écriture
+    Sortie: Rect du rectangle affiché
     """
-    shop_text = Font.render(shop, 0, VIOLET)
+    shop_text = Font[size].render(text, 0, color)
     shop_text_rect = shop_text.get_rect()
 
     # On affiche le rectangle à doite puisqu'il y a de la place
-    if shop_text_rect[2] + mouse_pos[0] + 26 <= 1624:
-        pg.draw.rect(screen, BLACK, (mouse_pos[0] + 12, mouse_pos[1] + 2, shop_text_rect[2] + 11, 36))
-        pg.draw.rect(screen, WHITE, (mouse_pos[0] + 10, mouse_pos[1], shop_text_rect[2] + 15, 40), width=3)
-        screen.blit(shop_text, (mouse_pos[0] + 15, mouse_pos[1] + 10))
+    if shop_text_rect[2] + pos[0] + 26 <= 1624:
+        pg.draw.rect(screen, BLACK, (pos[0] + 12, pos[1] + 2, shop_text_rect[2] + 11, 8 + shop_text_rect[3]))
+        rect = pg.draw.rect(screen, WHITE, (pos[0] + 10, pos[1], shop_text_rect[2] + 15, 10 + shop_text_rect[3]), width=3)
+        screen.blit(shop_text, (pos[0] + 15, pos[1] + 10))
     # Il n'y a pas de place à droite, on le met donc à gauche
     else:
-        pg.draw.rect(screen, BLACK, (mouse_pos[0] - shop_text_rect[2] - 22, mouse_pos[1] + 2, shop_text_rect[2] + 16, 36))
-        pg.draw.rect(screen, WHITE, (mouse_pos[0] - shop_text_rect[2] - 25, mouse_pos[1], shop_text_rect[2] + 20, 40), width=3)
-        screen.blit(shop_text, (mouse_pos[0] - shop_text_rect[2] - 15, mouse_pos[1] + 10))
+        pg.draw.rect(screen, BLACK, (pos[0] - shop_text_rect[2] - 22, pos[1] + 2, shop_text_rect[2] + 16, 8 + shop_text_rect[3]))
+        rect = pg.draw.rect(screen, WHITE, (pos[0] - shop_text_rect[2] - 25, pos[1], shop_text_rect[2] + 20, 10 + shop_text_rect[3]), width=3)
+        screen.blit(shop_text, (pos[0] - shop_text_rect[2] - 15, pos[1] + 10))
+    return rect
 
 
 def alley(mouse_pos):
@@ -433,34 +490,34 @@ def alley(mouse_pos):
     # On affiche l'image du chemin de traverse
     screen.blit(IMG_CHEMIN, (0, 0))
     screen.blit(IMG_MALLE, (600, 750))
-    display_text("press esc to exit", FONT, 20, WHITE, 10, 0, alignment=0)
+    display_text("press esc to exit", Font, 20, WHITE, 10, 0, alignment=0)
     # On surligne le magasin si on a la souris dessus
     if OLLIVANDER_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(ollivander_poly, (0, 0))
-        description(mouse_pos, "Ollivander")
+        rectangle_text(mouse_pos, "Ollivander", 20, VIOLET)
         # Un bouton de la souris a été pressé
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(1)
     elif FLOURISH_AND_BLOTTS_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(flourish_and_blotts_poly, (0, 0))
-        description(mouse_pos, "Flourish and Blotts")
+        rectangle_text(mouse_pos, "Flourish and Blotts", 20, VIOLET)
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(2)
     elif MALKIN_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(malkin_poly, (0, 0))
-        description(mouse_pos, "Madam Malkin's Robes for All Occasions")
+        rectangle_text(mouse_pos, "Madam Malkin's Robes for All Occasions", 20, VIOLET)
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(0)
     elif MALLE_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(malle_poly, (0, 0))
-        description(mouse_pos, "Organize Harry's trunk")
+        rectangle_text(mouse_pos, "Organize Harry's trunk", 20, VIOLET)
         if pg.event.peek(pg.MOUSEBUTTONDOWN):
             shop(3)
 
 def update_fps():
-    Font = pg.font.SysFont("Arial", 18)
+    font = pg.font.SysFont("Arial", 18)
     fps = str(int(clock.get_fps()))
-    fps_text = Font.render(fps, 1, pg.Color("coral"))
+    fps_text = font.render(fps, 1, pg.Color("coral"))
     return fps_text
 
 def main():
@@ -475,12 +532,10 @@ def main():
                 pg.quit()
                 quit()
 
-        # On affiche l'allée (menu principal)
         alley(pg.mouse.get_pos())
-        screen.blit(update_fps(), (10, 1060))
-        # On rafraîchit l'écran et on limite le nombre
-        # de FPS à 30
+        # On rafraîchit l'écran
         pg.display.update()
+        # On limite le nombre d'images par secondes
         clock.tick(FPS)
 
 main()
