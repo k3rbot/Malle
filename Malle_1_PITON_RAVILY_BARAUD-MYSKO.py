@@ -18,6 +18,9 @@ VIOLET = (128, 0, 128)
 YELLOW = (255, 255, 0)
 TRANSPARENT_YELLOW = (255, 240, 0, 85)
 ORANGE = (255, 140, 0)
+GREY = (225, 200, 200)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
 
 # On "génère" la police d'écriture Harry Potter en 100 tailles différentes;
 # Si on la "générais" au moment de l'utiliser on utiliserai énormément 
@@ -99,6 +102,20 @@ pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
 OLLIVANDER_TESTS = ('0;0;0', '0;0;654', '0;23;78', '2;11;9', '7;531;451')
 FLOURISH_AND_BLOTTS_TESTS = ('0', '60', '63', '231', '899')
 MALKIN_TESTS = ('0', '8', '62', '231', '497', '842')
+
+# Les fournitures pour la malle d'Harry
+fournitures_scolaires = [
+    {'Nom' : 'Manuel scolaire', 'Poids' : 0.55, 'Mana' : 11},
+    {'Nom' : 'Baguette magique', 'Poids' : 0.085, 'Mana' : 120},
+    {'Nom' : 'Chaudron', 'Poids' : 2.5, 'Mana' : 2},
+    {'Nom' : 'Boîte de fioles', 'Poids' : 1.2, 'Mana' : 4},
+    {'Nom' : 'Téléscope', 'Poids' : 1.9, 'Mana' : 6},
+    {'Nom' : 'Balance de cuivre', 'Poids' : 1.3, 'Mana' : 3},
+    {'Nom' : 'Robe de travail', 'Poids' : 0.5, 'Mana' : 8},
+    {'Nom' : 'Chapeau pointu', 'Poids' : 0.7, 'Mana' : 9},
+    {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
+    {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}
+]
 
 
 def display_text(text: str, font: list, size: int, color: tuple, x: int, y: int, alignment=1):
@@ -293,6 +310,7 @@ def shop(shop: int):
     money_list = (" euros", " galleons", " sickles", " knuts")
     previous_test = True
     previous_tests = [1]
+    malle = {}
     if shop == 0:
         money_type = 0
         previous_tests += list(MALKIN_TESTS)
@@ -325,8 +343,8 @@ def shop(shop: int):
             screen.blit(dim, (0, 0))
         else:
             screen.fill((255, 150, 0))
-            screen.blit(IMG_MALLE_OPEN, (450, 300))
-            display_text("Let's organize Harry's trunk !", Font, 90, VIOLET, 812, 100)
+            screen.blit(IMG_MALLE_OPEN, (525, 250))
+            display_text("Let's organize Harry's trunk !", Font, 90, VIOLET, 812, 50)
         display_text("press esc to go back to menu", Font, 20, WHITE, 10, 0, alignment=0)
 
         if shop != 3:
@@ -423,6 +441,7 @@ def shop(shop: int):
                 elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                     return
             mouse_pos = pg.mouse.get_pos()
+
             rectangle_text((1200, 300), "Take anything", 30, GREEN)
             rectangle_text((1200, 400), "Max weight", 30, GREEN)
             rectangle_text((1200, 500), "Max mana", 30, GREEN)
@@ -432,11 +451,11 @@ def shop(shop: int):
             if button_anything_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 290), "Take anything", 40, GREEN)
                 if mouse_down:
-                    print("Anything")
+                    malle = remplissage_pif_malle(fournitures_scolaires)
             elif button_weight_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 390), "Max weight", 40, GREEN)
                 if mouse_down:
-                    print("Weight")
+                    malle = remplissage_max(fournitures_scolaires)
             elif button_mana_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 490), "Max mana", 40, GREEN)
                 if mouse_down:
@@ -449,15 +468,82 @@ def shop(shop: int):
                 rectangle_text((1175, 690), "Best management", 40, GREEN)
                 if mouse_down:
                     print("Best")
+            display_furnitures(malle)
 
         pg.display.update()
         clock.tick(FPS)
 
 
+def remplissage_pif_malle(fournitures):
+    malle_harry = []    
+    poids_max = 4
+    
+    for element in fournitures:
+        if element['Poids'] <= poids_max :
+            malle_harry.append(element)
+            poids_max -= element['Poids']
+
+    return malle_harry
+
+
+def remplissage_max(fournitures):
+    
+    poids_liste = []
+    for element in fournitures:
+        poids_liste.append(element["Poids"])
+    
+
+    for i in range (1, len(poids_liste)):
+        while poids_liste[i] < poids_liste[i - 1] and i > 0:
+            poids_liste[i], poids_liste[i - 1] = poids_liste[i - 1],\
+                poids_liste[i]
+            i = i - 1
+        
+
+    somme_poids = 0
+    liste_poids = []
+    for i in poids_liste:
+        somme_poids += i
+        liste_poids.append(i)
+        if somme_poids > 4:
+            somme_poids -= i
+            liste_poids.remove(i)
+            break
+
+    malle_max = []
+    for element in fournitures_scolaires:
+        for poids in liste_poids:
+            if poids == element["Poids"]:
+                malle_max.append(element)
+    
+    return(malle_max)
+
+
+def display_furnitures(furnitures: list):
+    """
+    Fonction permettant l'affichage des fournitures mises dans la valise d'Harry Potter
+    avec le poids et le mana total
+
+    Entrée: La liste des fournitures dans la valise
+    """
+    if furnitures == {}:
+        return
+
+    display_text("We can put in Harry's trunk :", Font, 70, GREY, 20, 180, alignment=0)
+    weight, mana = 0, 0
+    for i, elt in enumerate(furnitures):
+        display_text('- 1 ' + elt["Nom"], Font, 60, BLACK, 40, 300 + i*80, alignment=0)
+        weight += elt["Poids"]
+        mana += elt["Mana"]
+        if i == len(furnitures) - 1:
+            display_text(f"Total mana: {mana}", Font, 60, BLUE, 40, 975, alignment=0)
+            display_text(f"Total weight: {weight}", Font, 60, RED, 525, 975, alignment=0)
+
+
 def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
     """
     Fonction affichant un rectangle contenant du texte
-    
+
     Entrée: La position du rectangle (en partant de l'angle du haut à gauche + 10 pixels)
             Le texte à afficher dans le rectangle
             La taille de la police d'écriture
@@ -479,7 +565,7 @@ def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
     return rect
 
 
-def alley(mouse_pos):
+def alley(mouse_pos: tuple, pressed: bool):
     """
     Fonction affichant le menu de sélection de la boutique,
     elle est surlignée quand la souris passe dessus et si l'on
@@ -496,22 +582,22 @@ def alley(mouse_pos):
         screen.blit(ollivander_poly, (0, 0))
         rectangle_text(mouse_pos, "Ollivander", 20, VIOLET)
         # Un bouton de la souris a été pressé
-        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+        if pressed:
             shop(1)
     elif FLOURISH_AND_BLOTTS_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(flourish_and_blotts_poly, (0, 0))
         rectangle_text(mouse_pos, "Flourish and Blotts", 20, VIOLET)
-        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+        if pressed:
             shop(2)
     elif MALKIN_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(malkin_poly, (0, 0))
         rectangle_text(mouse_pos, "Madam Malkin's Robes for All Occasions", 20, VIOLET)
-        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+        if pressed:
             shop(0)
     elif MALLE_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         screen.blit(malle_poly, (0, 0))
         rectangle_text(mouse_pos, "Organize Harry's trunk", 20, VIOLET)
-        if pg.event.peek(pg.MOUSEBUTTONDOWN):
+        if pressed:
             shop(3)
 
 def update_fps():
@@ -526,13 +612,16 @@ def main():
     quitte la fenêtre ou appuie sur esc
     """
     while 1:
+        mouse_pressed = False
         # On liste les évenements survenus
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.key == pg.K_ESCAPE if event.type == pg.KEYDOWN else 0):
                 pg.quit()
                 quit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                mouse_pressed = True
 
-        alley(pg.mouse.get_pos())
+        alley(pg.mouse.get_pos(), mouse_pressed)
         # On rafraîchit l'écran
         pg.display.update()
         # On limite le nombre d'images par secondes
