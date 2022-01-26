@@ -351,15 +351,15 @@ def all_possibilities(list):
         nb_bin = (n - len(nb_bin)) * '0' + nb_bin
         bin_list.append(nb_bin)
 
-    elts_combination = []
+    combinations_list = []
     for str_bin in bin_list:
         combi = []
         for i, str in enumerate(str_bin):
             if str == '1':
                 combi.append(list[i])
-        elts_combination.append(combi)
+        combinations_list.append(combi)
 
-    return elts_combination
+    return combinations_list
 
 
 def brute_force_management(list, max_weight):
