@@ -86,7 +86,6 @@ ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
 OLLIVANDER_CORDS_MOUSE = []
 for cords in OLLIVANDER_CORDS:
     OLLIVANDER_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-    print(OLLIVANDER_CORDS_MOUSE)
 OLLIVANDER_RECT_MOUSE = pg.draw.polygon(ollivander_poly, (255, 0, 0, 155), OLLIVANDER_CORDS_MOUSE)
 
 # On dessine le polygone créé
