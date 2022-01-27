@@ -1,12 +1,18 @@
 from msilib import Binary
 import os
 import pygame as pg
+import ctypes
+
+user32 = ctypes.windll.user32
+screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+ratio = (screensize[0]/1624, screensize[1]/1080)
 
 pg.init()
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
+
 # On initialise la fenêtre de 1624 par 1080 pixels (la taille de la photo)
-screen = pg.display.set_mode((1624, 1080))
+screen = pg.display.set_mode((1624*ratio[0], 1080*ratio[1]))
 
 pg.event.set_allowed([pg.QUIT, pg.KEYDOWN])
 
