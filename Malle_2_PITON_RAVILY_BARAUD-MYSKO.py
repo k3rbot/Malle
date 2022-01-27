@@ -315,7 +315,7 @@ def give_back(repaid: dict or list):
         elif repaid[amount] > 0:
             i += 1
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
-            if type(amount) == int else f"{repaid[amount]} {amount}", Font, 50, GREEN, 600, 465 + 65*i, alignment=0)
+            if type(amount) == int else f"{repaid[amount]} {amount}", Font, 50, GREEN, 600, 480 + 65*i, alignment=0)
     if type(repaid) == dict and repaid["impossible"]:
         display_text("Can't give you enough money !", Font, 70, GREEN, 812, 950, alignment=1)
     elif i == 0:
@@ -516,6 +516,8 @@ def shop(shop: int):
                         nbs_entered = nb.split(';')
                         for i in range(3):
                             nbs_entered[i] = int(nbs_entered[i])
+                        if '\n' in nbs_entered:
+                            nbs_entered.remove('\n')
                     if money_type == 1:  # Gallions
                         money_type = 2
                         nbs_entered.append(int(nb[:-1]))
