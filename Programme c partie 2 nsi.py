@@ -11,75 +11,36 @@ fournitures_scolaires = \
 {'Nom' : 'Chapeau pointu', 'Poids' : 0.7, 'Mana' : 9},
 {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
+POIDS_MAXIMUM = 4 
+def max_mana(fournitures, poids_max):
+    liste_objet = []
+    for i in range(len(fournitures_scolaires)):
+        temp = fournitures_scolaires[i]
+        indice = i- 1
+        while temp['Mana'] > fournitures[indice]['Mana'] and indice >= 0:
+            fournitures[indice+1] = fournitures[indice]
+            indice -= 1
+            fournitures[indice + 1] = temp
+    print(fournitures_scolaires)
 
 
-
-def remplissage_max(fournitures):
-    
-    new_mana = []
-    for element in fournitures:
-        new_mana.append(element['Mana'])
-    
-
-    for i in range (1, len(new_mana)):
-        while new_mana[i] < new_mana[i - 1] and i > 0:
-            new_mana[i], new_mana[i - 1] = new_mana[i - 1],new_mana[i]
-            i = i - 1
-        
-
-    poids_total = 0
-    liste_poids = []
-    for element in liste_fournitures:
-        if element == new_mana[i] :
-
-
-    for element in fournitures_scolaires:
-        for poids in liste_poids:
-            if poids == element["Poids"]:
-                malle_max.append(element)
-    
-    return(malle_max)
-
-print(remplissage_max(fournitures_scolaires))
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-'''    
-        while new_mana[i] > new_mana[i - 1] and i > 0:
-            new_mana[i], new_mana[i - 1] = new_mana[i - 1], new_mana[i]
-            i = i - 1
-    for element in fournitures:
-        if element['Poids'] <= poids_max :
-            new_mana.append(element)
+    for element in fournitures : 
+        if element['Poids'] < poids_max:
+            liste_objet.append(fournitures)
             poids_max -= element['Poids']
+        return liste_objet
 
-    return new_mana
-        
-    
-    
-malle_finale = max_mana(fournitures_scolaires, 4)
-print(malle_finale)
-
-'''
+nouvelle_malle = max_mana(fournitures_scolaires, POIDS_MAXIMUM)
+print(nouvelle_malle)
 
 
 
-
- 
-        
-
+poids_total = 0
+mana_total= 0
+for element in nouvelle_malle:
+    poids_total += element['Poids']
+    mana_total += element['Mana']
+print(f'Le poids total de la malle est {poids_total}')
+print(f'Le mana total de la malle est {mana_total}')
 
 
