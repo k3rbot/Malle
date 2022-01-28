@@ -437,7 +437,6 @@ def best_ratio_mana_weight(list: list, max_weight: int) -> list:
             weight -= elt['Poids']
             best_ratio_list.append(elt)
             max_ratio = mana/max_weight
-    print(best_ratio_list)
     return best_ratio_list
 
 def messy_management(fournitures, poids_max):
