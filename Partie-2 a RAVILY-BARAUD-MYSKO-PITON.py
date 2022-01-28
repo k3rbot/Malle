@@ -1,3 +1,6 @@
+
+poids_maximum = 4
+
 fournitures_scolaires = \
 [{'Nom' : 'Manuel scolaire', 'Poids' : 0.55, 'Mana' : 11},
 {'Nom' : 'Baguette magique', 'Poids' : 0.085, 'Mana' : 120},
@@ -9,21 +12,32 @@ fournitures_scolaires = \
 {'Nom' : 'Chapeau pointu', 'Poids' : 0.7, 'Mana' : 9},
 {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
-'''
-On définit une fonction remplissage_malle qui va nous servir a remplir la nouvelle malle d'Harry avec les fournitures.
-Entrée:On va chercher dans la liste des fournitures les éléments dans l'ordre
-Sortie:On renvoye la fonction malle_harry ou on a rempli avec les éléments dans l'ordre sans dépasser le poids maximal
-'''
-def remplissage_malle(fournitures):
-    malle_harry = []    
-    poids_max = 4
+
+def max_mana(fournitures):
+
+    new_mana = []
+    for element in fournitures :
+            new_mana.append(element['Mana'])
+
+
+    for i in range (1, len(new_mana)):
+        while new_mana[i] > new_mana[i - 1] and i > 0:
+            new_mana[i], new_mana[i - 1] = new_mana[i - 1], new_mana[i]
+            i = i - 1
     
-    for element in fournitures:
-        if element['Poids'] <= poids_max :
-            malle_harry.append(element)
-            poids_max -= element['Poids']
+    
+'''
+    for element in fournitures :
+        poids_maximum = 4    
+        total_poids = []    
+        if poids_maximum >= 0 :
+            total_poids.append(new_mana['Poids'])
+            poids_maximum  -= element['Poids']
+            
+        return total_poids
 
-    return malle_harry
+'''
+malle_finale = max_mana(fournitures_scolaires)
+print(malle_finale)
 
-nouvelle_malle = remplissage_malle(fournitures_scolaires)
-print(nouvelle_malle)
+ 

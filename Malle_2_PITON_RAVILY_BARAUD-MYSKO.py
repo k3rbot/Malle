@@ -1,15 +1,25 @@
 from msilib import Binary
 import os
 import pygame as pg
+import ctypes
+
+# On récupère la taille de l'écran pour faire une fenêtre 
+# qui dépends d'elle
+user32 = ctypes.windll.user32
+SCREENSIZE = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 
 pg.init()
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
-# On initialise la fenêtre de 1624 par 1080 pixels (la taille de la photo)
-screen = pg.display.set_mode((1624, 1080))
+
+# Notre fenêtre dépends de la taille de l'écran
+window = pg.display.set_mode((SCREENSIZE[0] - 200, SCREENSIZE[1] - 122))
+# Surface sur laquelle le rendu sera fait mais seulement
+# utilisée pour pouvoir mettre à l'échelle le rendu
+# sur l'écran de taille variable
+resizable_screen = pg.Surface((1624, 1080))
 
 pg.event.set_allowed([pg.QUIT, pg.KEYDOWN])
-
 
 # On définit plusieurs couleurs au format rgb
 WHITE = (255, 255, 255)
@@ -46,6 +56,19 @@ FPS = 60
 # On définit le titre de la fenêtre
 pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
 
+def map_to_value(x: int, in_min: int, in_max: int, out_min: int, out_max: int) -> int:
+    """
+    Remappe une valeur dans un intervalle correspondant au même ratio
+    dans l'intervalle d'origine
+
+    Entrée: x: au nombre à mapper
+            in_min: plus betite bordure de l'intervalle original
+            in_max: plus grande bordure de l'intervalle original
+            out_min: plus petite bordure de l'intervalle désiré
+            out_max: plus grande bordure de l'intervalle désiré
+    """
+    return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+
 # Polygone d'une boutique
 OLLIVANDER_CORDS = (
     (781, 704), (784, 711), (815, 709), (818, 716),
@@ -58,7 +81,16 @@ OLLIVANDER_CORDS = (
 )
 # La surface sur laquelle on met notre polygone et qui accepte la notion de transparence
 ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+# On modifie les coordonnées pour avoir le rectangle pour
+# la détection avec la souris puisque l'écran est de taille variable
+OLLIVANDER_CORDS_MOUSE = []
+for cords in OLLIVANDER_CORDS:
+    OLLIVANDER_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
+OLLIVANDER_RECT_MOUSE = pg.draw.polygon(ollivander_poly, (255, 0, 0, 155), OLLIVANDER_CORDS_MOUSE)
+
+# On dessine le polygone créé
 OLLIVANDER_RECT = pg.draw.polygon(ollivander_poly, TRANSPARENT_YELLOW, OLLIVANDER_CORDS)
+
 
 FLOURISH_AND_BLOTTS_CORDS = (
     (1243, 451), (1426, 381), (1456, 338), (1486, 308),
@@ -70,6 +102,11 @@ FLOURISH_AND_BLOTTS_CORDS = (
     (1241, 447)
 )
 flourish_and_blotts_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+FLOURISH_AND_BLOTTS_CORDS_MOUSE = []
+for cords in FLOURISH_AND_BLOTTS_CORDS:
+    FLOURISH_AND_BLOTTS_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
+FLOURISH_AND_BLOTTS_RECT_MOUSE = pg.draw.polygon(flourish_and_blotts_poly, (255, 0, 0, 155), FLOURISH_AND_BLOTTS_CORDS_MOUSE)
+
 FLOURISH_AND_BLOTTS_RECT = pg.draw.polygon(flourish_and_blotts_poly, TRANSPARENT_YELLOW, FLOURISH_AND_BLOTTS_CORDS)
 
 MALKIN_CORDS = (
@@ -83,16 +120,27 @@ MALKIN_CORDS = (
     (373, 777), (338, 802), (317, 803), (307, 809)
 )
 malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+MALKIN_CORDS_MOUSE = []
+for cords in MALKIN_CORDS:
+    MALKIN_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
+MALKIN_RECT_MOUSE = pg.draw.polygon(malkin_poly, (0, 0, 0, 0), MALKIN_CORDS_MOUSE)
+
 MALKIN_RECT = pg.draw.polygon(malkin_poly, TRANSPARENT_YELLOW, MALKIN_CORDS)
 
-MALLE_CORDS = (
+TRUNK_CORDS = (
     (649, 811), (858, 791), (868, 792), (957, 819),
     (962, 822), (968, 827), (968, 942), (964, 949),
     (754, 983), (748, 982), (647, 935), (644, 930),
     (642, 924), (643, 816), (645, 813), (649, 811)
 )
-malle_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
-MALLE_RECT = pg.draw.polygon(malle_poly, TRANSPARENT_YELLOW, MALLE_CORDS)
+trunk_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+TRUNK_CORDS_MOUSE = []
+for cords in TRUNK_CORDS:
+    TRUNK_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
+TRUNK_RECT_MOUSE = pg.draw.polygon(trunk_poly, (0, 0, 0, 0), TRUNK_CORDS_MOUSE)
+
+TRUNK_RECT = pg.draw.polygon(trunk_poly, TRANSPARENT_YELLOW, TRUNK_CORDS)
+
 
 # On prépare une surface sur laquelle on met un rectangle noir 
 # semi-transparent pour réduire la luminosité de l'image derrière
@@ -141,11 +189,11 @@ def display_text(text: str, font: list, size: int, color: tuple, x: int, y: int,
     text = font[size].render(text, 0, color)
     text_rect = text.get_rect()
     if alignment == 0:  # Alignement à gauche
-        screen.blit(text, (x, y))
+        resizable_screen.blit(text, (x, y))
     elif alignment == 1:  # Alignement au centre
-        screen.blit(text, (x - (text_rect[2]/2), y))
+        resizable_screen.blit(text, (x - (text_rect[2]/2), y))
     else:  # Alignement à droite
-        screen.blit(text, (x - text_rect[2], y))
+        resizable_screen.blit(text, (x - text_rect[2], y))
 
 
 def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
@@ -162,14 +210,14 @@ def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
 
     # On affiche le rectangle à doite puisqu'il y a de la place
     if shop_text_rect[2] + pos[0] + 26 <= 1624:
-        pg.draw.rect(screen, BLACK, (pos[0] + 12, pos[1] + 2, shop_text_rect[2] + 11, 8 + shop_text_rect[3]))
-        rect = pg.draw.rect(screen, WHITE, (pos[0] + 10, pos[1], shop_text_rect[2] + 15, 10 + shop_text_rect[3]), width=3)
-        screen.blit(shop_text, (pos[0] + 15, pos[1] + 10))
+        pg.draw.rect(resizable_screen, BLACK, (pos[0] + 12, pos[1] + 2, shop_text_rect[2] + 11, 8 + shop_text_rect[3]))
+        rect = pg.draw.rect(resizable_screen, WHITE, (pos[0] + 10, pos[1], shop_text_rect[2] + 15, 10 + shop_text_rect[3]), width=3)
+        resizable_screen.blit(shop_text, (pos[0] + 15, pos[1] + 10))
     # Il n'y a pas de place à droite, on le met donc à gauche
     else:
-        pg.draw.rect(screen, BLACK, (pos[0] - shop_text_rect[2] - 22, pos[1] + 2, shop_text_rect[2] + 16, 8 + shop_text_rect[3]))
-        rect = pg.draw.rect(screen, WHITE, (pos[0] - shop_text_rect[2] - 25, pos[1], shop_text_rect[2] + 20, 10 + shop_text_rect[3]), width=3)
-        screen.blit(shop_text, (pos[0] - shop_text_rect[2] - 15, pos[1] + 10))
+        pg.draw.rect(resizable_screen, BLACK, (pos[0] - shop_text_rect[2] - 22, pos[1] + 2, shop_text_rect[2] + 16, 8 + shop_text_rect[3]))
+        rect = pg.draw.rect(resizable_screen, WHITE, (pos[0] - shop_text_rect[2] - 25, pos[1], shop_text_rect[2] + 20, 10 + shop_text_rect[3]), width=3)
+        resizable_screen.blit(shop_text, (pos[0] - shop_text_rect[2] - 15, pos[1] + 10))
     return rect
 
 
@@ -315,7 +363,7 @@ def give_back(repaid: dict or list):
         elif repaid[amount] > 0:
             i += 1
             display_text((f"{repaid[amount]} {('note' if amount > 2 else 'piece') + ('s' if repaid[amount] > 1 else '')} of {amount} euros")
-            if type(amount) == int else f"{repaid[amount]} {amount}", Font, 50, GREEN, 600, 465 + 65*i, alignment=0)
+            if type(amount) == int else f"{repaid[amount]} {amount}", Font, 50, GREEN, 600, 480 + 65*i, alignment=0)
     if type(repaid) == dict and repaid["impossible"]:
         display_text("Can't give you enough money !", Font, 70, GREEN, 812, 950, alignment=1)
     elif i == 0:
@@ -453,20 +501,20 @@ def shop(shop: int):
     while 1:
         # On affiche l'image de la boutique et on l'assombrit
         if shop == 0:
-            screen.blit(IMG_MALKIN, (0, 0))
+            resizable_screen.blit(IMG_MALKIN, (0, 0))
             display_text("Welcome to Madam's Malkin shop !", Font, 90, VIOLET, 812, 100)
-            screen.blit(dim, (0, 0))
+            resizable_screen.blit(dim, (0, 0))
         elif shop == 1:
-            screen.blit(IMG_OLLIVANDER, (0, 0))
+            resizable_screen.blit(IMG_OLLIVANDER, (0, 0))
             display_text("Welcome to Ollivander's shop !", Font, 90, VIOLET, 812, 100)
-            screen.blit(dim, (0, 0))
+            resizable_screen.blit(dim, (0, 0))
         elif shop == 2:
-            screen.blit(IMG_FLOURISH_AND_BLOTTS, (0, 0))
+            resizable_screen.blit(IMG_FLOURISH_AND_BLOTTS, (0, 0))
             display_text("Welcome to Flourish and Blotts shop !", Font, 90, VIOLET, 812, 100)
-            screen.blit(dim, (0, 0))
+            resizable_screen.blit(dim, (0, 0))
         else:
-            screen.fill((255, 150, 0))
-            screen.blit(IMG_MALLE_OPEN, (525, 250))
+            resizable_screen.fill((255, 150, 0))
+            resizable_screen.blit(IMG_MALLE_OPEN, (525, 250))
             display_text("Let's organize Harry's trunk !", Font, 90, VIOLET, 812, 50)
         display_text("press esc to go back to menu", Font, 20, WHITE, 10, 0, alignment=0)
 
@@ -516,6 +564,8 @@ def shop(shop: int):
                         nbs_entered = nb.split(';')
                         for i in range(3):
                             nbs_entered[i] = int(nbs_entered[i])
+                        if '\n' in nbs_entered:
+                            nbs_entered.remove('\n')
                     if money_type == 1:  # Gallions
                         money_type = 2
                         nbs_entered.append(int(nb[:-1]))
@@ -593,7 +643,9 @@ def shop(shop: int):
                     trunk_content = brute_force_management(all_possibilities(SCHOLAR_FURNITURES), MAX_WEIGHT)
             display_furnitures(trunk_content)
 
-        pg.display.update()
+        frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0] - 100, pg.display.get_window_size()[1] - 66))
+        window.blit(frame, (0, 0))
+        pg.display.flip()
         clock.tick(FPS)
 
 
@@ -606,28 +658,28 @@ def alley(mouse_pos: tuple, pressed: bool):
     Entrée: La position de la souris
     """
     # On affiche l'image du chemin de traverse
-    screen.blit(IMG_CHEMIN, (0, 0))
-    screen.blit(IMG_MALLE, (600, 750))
+    resizable_screen.blit(IMG_CHEMIN, (0, 0))
+    resizable_screen.blit(IMG_MALLE, (600, 750))
     display_text("press esc to exit", Font, 20, WHITE, 10, 0, alignment=0)
     # On surligne le magasin si on a la souris dessus
-    if OLLIVANDER_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(ollivander_poly, (0, 0))
+    if OLLIVANDER_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+        resizable_screen.blit(ollivander_poly, (0, 0))
         rectangle_text(mouse_pos, "Ollivander", 20, VIOLET)
         # Un bouton de la souris a été pressé
         if pressed:
             shop(1)
-    elif FLOURISH_AND_BLOTTS_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(flourish_and_blotts_poly, (0, 0))
+    elif FLOURISH_AND_BLOTTS_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+        resizable_screen.blit(flourish_and_blotts_poly, (0, 0))
         rectangle_text(mouse_pos, "Flourish and Blotts", 20, VIOLET)
         if pressed:
             shop(2)
-    elif MALKIN_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(malkin_poly, (0, 0))
+    elif MALKIN_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+        resizable_screen.blit(malkin_poly, (0, 0))
         rectangle_text(mouse_pos, "Madam Malkin's Robes for All Occasions", 20, VIOLET)
         if pressed:
             shop(0)
-    elif MALLE_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
-        screen.blit(malle_poly, (0, 0))
+    elif TRUNK_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+        resizable_screen.blit(trunk_poly, (0, 0))
         rectangle_text(mouse_pos, "Organize Harry's trunk", 20, VIOLET)
         if pressed:
             shop(3)
@@ -648,8 +700,11 @@ def main():
                 mouse_pressed = True
 
         alley(pg.mouse.get_pos(), mouse_pressed)
+
+        frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0], pg.display.get_window_size()[1]))
+        window.blit(frame, (0, 0))
         # On rafraîchit l'écran
-        pg.display.update()
+        pg.display.flip()
         # On limite le nombre d'images par secondes
         clock.tick(FPS)
 
