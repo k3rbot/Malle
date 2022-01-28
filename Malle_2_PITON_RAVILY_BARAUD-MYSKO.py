@@ -370,7 +370,16 @@ def display_furnitures(furnitures: list):
             display_text(f"Total weight: {weight}", Font, 60, RED, 525, 975, alignment=0)
 
 
-def all_possibilities(list):
+def brute_force_management(list, max_weight):
+    """
+    Fonction qui trouve le meilleur résultat de mana total en
+    calculant toutes les combinaisons d'éléments possible pour une liste
+    et en respectant le poids limite
+
+    Entrée: La liste des éléments
+    Sortie: La combinaison d'éléments donnant le maximum de mana
+            en respectant le poids limite
+    """
     n = len(list)
     bin_list = []
     for i in range(2**n):
@@ -386,12 +395,8 @@ def all_possibilities(list):
                 combi.append(list[i])
         combinations_list.append(combi)
 
-    return combinations_list
-
-
-def brute_force_management(list, max_weight):
     max_mana = 0
-    for elts in list:
+    for elts in combinations_list:
         weight = 0
         mana = 0
         for elt in elts:
@@ -414,7 +419,14 @@ def messy_management(fournitures, poids_max):
     return malle_harry
 
 
-def max_weight_management(fournitures):
+def max_weight_management(fournitures: list, poids_max: int) -> list:
+    """
+    Remplis une liste avec le plus d'éléments possibles sans que
+    la somme de leurs poids ne dépasse un poids maximal.
+
+    Entrée : La liste des fournitures
+    Sortie : La liste des éléments remplis au maximum
+    """
     poids_liste = []
     for element in fournitures:
         poids_liste.append(element["Poids"])
@@ -428,29 +440,50 @@ def max_weight_management(fournitures):
 
     somme_poids = 0
     liste_poids = []
-    for i in poids_liste:
-        somme_poids += i
-        liste_poids.append(i)
-        if somme_poids > 4:
-            somme_poids -= i
-            liste_poids.remove(i)
-            break
+    for i in reversed(poids_liste):
+        if somme_poids + i < poids_max:
+            somme_poids += i
+            liste_poids.append(i)
 
     malle_max = []
-    for element in SCHOLAR_FURNITURES:
+    for element in fournitures:
         for poids in liste_poids:
             if poids == element["Poids"]:
                 malle_max.append(element)
-    
+
     return(malle_max)
+
+
+def max_mana_management(fournitures, poids_max):
+    '''
+    Entrée : Objets de la table fournitures scolaires
+    Sortie : Objets de la tables fournitures triéq par mana et ne dépassant pas la capacité de poids
+    '''
+    liste_objet = []
+    for i in range(len(fournitures)):
+        temp = fournitures[i]
+        indice = i- 1
+        while temp['Mana'] > fournitures[indice]['Mana'] and indice >= 0:
+            fournitures[indice+1] = fournitures[indice]
+            indice -= 1
+            fournitures[indice + 1] = temp
+
+    for element in fournitures: 
+        if element['Poids'] < poids_max:
+            liste_objet.append(element)
+            poids_max -= element['Poids']
+    return liste_objet
 
 
 def shop(shop: int):
     """
     Fonction permettant l'affichage et la gestion de n'importe quelle boutique
 
-    Entrée: id de la boutique 0: Malkin, 1: Ollivander,
-    2: Flourish and Blotts
+    Entrée: id de la boutique:
+                               0: Malkin,
+                               1: Ollivander,
+                               2: Flourish and Blotts,
+                               3: Malle
     """
     assert shop == 0 or shop == 1 or shop == 2 or shop == 3, "Wrong shop id: Unexistant"
 
@@ -619,7 +652,7 @@ def shop(shop: int):
             elif button_best_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 690), "Best management", 40, GREEN)
                 if mouse_down:
-                    trunk_content = brute_force_management(all_possibilities(SCHOLAR_FURNITURES), MAX_WEIGHT)
+                    trunk_content = brute_force_management(SCHOLAR_FURNITURES, MAX_WEIGHT)
             display_furnitures(trunk_content)
 
         frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0], pg.display.get_window_size()[1]))
@@ -635,6 +668,7 @@ def alley(mouse_pos: tuple, pressed: bool):
     clique on est transporté dedans
 
     Entrée: La position de la souris
+            L'état de la souris (pressé ou non)
     """
     # On affiche l'image du chemin de traverse
     resizable_screen.blit(IMG_CHEMIN, (0, 0))
@@ -666,7 +700,8 @@ def alley(mouse_pos: tuple, pressed: bool):
 
 def main():
     """
-    Fonction principale bouclant en continu
+    Fonction principale bouclant en continu et s'arrêtant lorsque
+    l'on appuie sur echap ou quand on ferme la fenêtre pygame
     """
     while 1:
         mouse_pressed = False
@@ -678,12 +713,15 @@ def main():
             elif event.type == pg.MOUSEBUTTONDOWN:
                 mouse_pressed = True
 
+        # On remap les coordonnés de la souris pour qu'ils correspondent à la fenêtre d'affichage de 1624 par 1080 pixels
         mouse_pos = map_to_value(pg.mouse.get_pos()[0], 0, pg.display.get_window_size()[0], 0, 1624), map_to_value(pg.mouse.get_pos()[1], 0, pg.display.get_window_size()[1], 0, 1080)
+        # On affiche l'allée
         alley(mouse_pos, mouse_pressed)
 
+        # On remet à l'échelle la fenêtre de rendu à celle de pygame
         frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0], pg.display.get_window_size()[1]))
         window.blit(frame, (0, 0))
-        # On rafraîchit l'écran
+        # On rafraîchit l'écran entier
         pg.display.flip()
         # On limite le nombre d'images par secondes
         clock.tick(FPS)
