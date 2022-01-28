@@ -409,8 +409,13 @@ def brute_force_management(list, max_weight):
 
 
 def messy_management(fournitures, poids_max):
-    malle_harry = []    
-
+    '''
+    Remplis une liste avec les élements pris dans l'ordre dans lequel ils apparaissent dans la malle
+    Entrée: la liste des fournitures
+    Sortie: la liste des fournitures prises dans l'ordre dont le poids ne dépasse pas le maximum'''
+    
+    malle_harry = [] 
+   
     for element in fournitures:
         if element['Poids'] <= poids_max :
             malle_harry.append(element)
@@ -456,9 +461,11 @@ def max_weight_management(fournitures: list, poids_max: int) -> list:
 
 def max_mana_management(fournitures, poids_max):
     '''
+    Fonction permettant de trie les éléments par mana et d'avoir le plus de mana dans la malle sans dépasser le poids max
     Entrée : Objets de la table fournitures scolaires
-    Sortie : Objets de la tables fournitures triéq par mana et ne dépassant pas la capacité de poids
+    Sortie : Objets de la tables fournitures triés par mana et ne dépassant pas la capacité de poids
     '''
+    #On utilise ici la méthode du tri optimisé
     liste_objet = []
     for i in range(len(fournitures)):
         temp = fournitures[i]
