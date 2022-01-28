@@ -1,4 +1,3 @@
-from msilib import Binary
 import os
 import pygame as pg
 import ctypes
@@ -13,7 +12,7 @@ pg.init()
 os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
 
 # Notre fenêtre dépends de la taille de l'écran
-window = pg.display.set_mode((SCREENSIZE[0] - 200, SCREENSIZE[1] - 122))
+window = pg.display.set_mode(((SCREENSIZE[1] - 133)*1.51, SCREENSIZE[1] - 133))
 # Surface sur laquelle le rendu sera fait mais seulement
 # utilisée pour pouvoir mettre à l'échelle le rendu
 # sur l'écran de taille variable
@@ -56,6 +55,8 @@ FPS = 60
 # On définit le titre de la fenêtre
 pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
 
+# Fonction nécéssaire à la génération de certaines variables globales
+# nécéssitant un redimensionnage en fonction de l'écran
 def map_to_value(x: int, in_min: int, in_max: int, out_min: int, out_max: int) -> int:
     """
     Remappe une valeur dans un intervalle correspondant au même ratio
@@ -80,13 +81,13 @@ OLLIVANDER_CORDS = (
     (784, 677), (780, 707)
 )
 # La surface sur laquelle on met notre polygone et qui accepte la notion de transparence
-ollivander_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+ollivander_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
 # On modifie les coordonnées pour avoir le rectangle pour
 # la détection avec la souris puisque l'écran est de taille variable
 OLLIVANDER_CORDS_MOUSE = []
 for cords in OLLIVANDER_CORDS:
     OLLIVANDER_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-OLLIVANDER_RECT_MOUSE = pg.draw.polygon(ollivander_poly, (255, 0, 0, 155), OLLIVANDER_CORDS_MOUSE)
+OLLIVANDER_RECT_MOUSE = pg.draw.polygon(ollivander_poly, (0, 0, 0, 0), OLLIVANDER_CORDS_MOUSE)
 
 # On dessine le polygone créé
 OLLIVANDER_RECT = pg.draw.polygon(ollivander_poly, TRANSPARENT_YELLOW, OLLIVANDER_CORDS)
@@ -101,11 +102,11 @@ FLOURISH_AND_BLOTTS_CORDS = (
     (1255, 472), (1252, 467), (1249, 467), (1244, 458),
     (1241, 447)
 )
-flourish_and_blotts_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+flourish_and_blotts_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
 FLOURISH_AND_BLOTTS_CORDS_MOUSE = []
 for cords in FLOURISH_AND_BLOTTS_CORDS:
     FLOURISH_AND_BLOTTS_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-FLOURISH_AND_BLOTTS_RECT_MOUSE = pg.draw.polygon(flourish_and_blotts_poly, (255, 0, 0, 155), FLOURISH_AND_BLOTTS_CORDS_MOUSE)
+FLOURISH_AND_BLOTTS_RECT_MOUSE = pg.draw.polygon(flourish_and_blotts_poly, (0, 0, 0, 0), FLOURISH_AND_BLOTTS_CORDS_MOUSE)
 
 FLOURISH_AND_BLOTTS_RECT = pg.draw.polygon(flourish_and_blotts_poly, TRANSPARENT_YELLOW, FLOURISH_AND_BLOTTS_CORDS)
 
@@ -119,7 +120,7 @@ MALKIN_CORDS = (
     (444, 729), (439, 735), (438, 750), (372, 756),
     (373, 777), (338, 802), (317, 803), (307, 809)
 )
-malkin_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+malkin_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
 MALKIN_CORDS_MOUSE = []
 for cords in MALKIN_CORDS:
     MALKIN_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
@@ -133,7 +134,7 @@ TRUNK_CORDS = (
     (754, 983), (748, 982), (647, 935), (644, 930),
     (642, 924), (643, 816), (645, 813), (649, 811)
 )
-trunk_poly = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
+trunk_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
 TRUNK_CORDS_MOUSE = []
 for cords in TRUNK_CORDS:
     TRUNK_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
@@ -144,8 +145,8 @@ TRUNK_RECT = pg.draw.polygon(trunk_poly, TRANSPARENT_YELLOW, TRUNK_CORDS)
 
 # On prépare une surface sur laquelle on met un rectangle noir 
 # semi-transparent pour réduire la luminosité de l'image derrière
-dim = pg.Surface((1634, 1080), flags=pg.SRCALPHA)
-pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1664, 1080))
+dim = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
+pg.draw.rect(dim, (0, 0, 0, 150), (0, 0, 1624, 1080))
 
 # Tous les tests à faire pour chaque maisons
 OLLIVANDER_TESTS = ('0;0;0', '0;0;654', '0;23;78', '2;11;9', '7;531;451')
@@ -218,6 +219,8 @@ def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
         pg.draw.rect(resizable_screen, BLACK, (pos[0] - shop_text_rect[2] - 22, pos[1] + 2, shop_text_rect[2] + 16, 8 + shop_text_rect[3]))
         rect = pg.draw.rect(resizable_screen, WHITE, (pos[0] - shop_text_rect[2] - 25, pos[1], shop_text_rect[2] + 20, 10 + shop_text_rect[3]), width=3)
         resizable_screen.blit(shop_text, (pos[0] - shop_text_rect[2] - 15, pos[1] + 10))
+    rect[0] = map_to_value(rect[0], 0, 1624, 0, pg.display.get_window_size()[0])
+    rect[1] = map_to_value(rect[1], 0, 1624, 0, pg.display.get_window_size()[1])
     return rect
 
 
@@ -424,7 +427,7 @@ def brute_force_management(list, max_weight):
     return best
 
 
-def wanky_management(fournitures, poids_max):
+def messy_management(fournitures, poids_max):
     malle_harry = []    
 
     for element in fournitures:
@@ -492,11 +495,12 @@ def shop(shop: int):
         money_type = 0
         previous_tests += list(FLOURISH_AND_BLOTTS_TESTS)
     else:
-        button_anything_rect = rectangle_text((1200, 300), "Take anything", 30, WHITE)
-        button_weight_rect = rectangle_text((1200, 400), "Max weight", 30, WHITE)
-        button_mana_rect = rectangle_text((1200, 500), "Max mana", 30, WHITE)
-        button_ratio_rect = rectangle_text((1200, 600), "Best ratio mana/weight", 30, WHITE)
-        button_best_rect = rectangle_text((1200, 700), "Best management", 30, WHITE)
+        x = map_to_value(1200, 0, 1624, 0, pg.display.get_window_size[0])
+        button_anything_rect = rectangle_text((x, map_to_value(300, 0, 1080, 0, pg.display.get_window_size[1])), "Take anything", 30, WHITE)
+        button_weight_rect = rectangle_text((x, map_to_value(400, 0, 1080, 0, pg.display.get_window_size[1])), "Max weight", 30, WHITE)
+        button_mana_rect = rectangle_text((x, map_to_value(500, 0, 1080, 0, pg.display.get_window_size[1])), "Max mana", 30, WHITE)
+        button_ratio_rect = rectangle_text((x, map_to_value(600, 0, 1080, 0, pg.display.get_window_size[1])), "Best ratio mana/weight", 30, WHITE)
+        button_best_rect = rectangle_text((x, map_to_value(700, 0, 1080, 0, pg.display.get_window_size[1])), "Best management", 30, WHITE)
 
     while 1:
         # On affiche l'image de la boutique et on l'assombrit
@@ -624,7 +628,7 @@ def shop(shop: int):
             if button_anything_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 290), "Take anything", 40, GREEN)
                 if mouse_down:
-                    trunk_content = wanky_management(SCHOLAR_FURNITURES, MAX_WEIGHT)
+                    trunk_content = messy_management(SCHOLAR_FURNITURES, MAX_WEIGHT)
             elif button_weight_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 390), "Max weight", 40, GREEN)
                 if mouse_down:
