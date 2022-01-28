@@ -197,8 +197,6 @@ def rectangle_text(pos: tuple, text: str, size: int, color: list) -> pg.Rect:
         pg.draw.rect(resizable_screen, BLACK, (pos[0] - shop_text_rect[2] - 22, pos[1] + 2, shop_text_rect[2] + 16, 8 + shop_text_rect[3]))
         rect = pg.draw.rect(resizable_screen, WHITE, (pos[0] - shop_text_rect[2] - 25, pos[1], shop_text_rect[2] + 20, 10 + shop_text_rect[3]), width=3)
         resizable_screen.blit(shop_text, (pos[0] - shop_text_rect[2] - 15, pos[1] + 10))
-    rect[0] = map_to_value(rect[0], 0, 1624, 0, pg.display.get_window_size()[0])
-    rect[1] = map_to_value(rect[1], 0, 1624, 0, pg.display.get_window_size()[1])
     return rect
 
 
@@ -473,13 +471,11 @@ def shop(shop: int):
         money_type = 0
         previous_tests += list(FLOURISH_AND_BLOTTS_TESTS)
     else:
-        x = map_to_value(1200, 0, 1624, 0, pg.display.get_window_size()[0])
-        print(x, pg.display.get_window_size())
-        button_anything_rect = rectangle_text((x, map_to_value(300, 0, 1080, 0, pg.display.get_window_size()[1])), "Take anything", 30, WHITE)
-        button_weight_rect = rectangle_text((x, map_to_value(400, 0, 1080, 0, pg.display.get_window_size()[1])), "Max weight", 30, WHITE)
-        button_mana_rect = rectangle_text((x, map_to_value(500, 0, 1080, 0, pg.display.get_window_size()[1])), "Max mana", 30, WHITE)
-        button_ratio_rect = rectangle_text((x, map_to_value(600, 0, 1080, 0, pg.display.get_window_size()[1])), "Best ratio mana/weight", 30, WHITE)
-        button_best_rect = rectangle_text((x, map_to_value(700, 0, 1080, 0, pg.display.get_window_size()[1])), "Best management", 30, WHITE)
+        button_anything_rect = rectangle_text((1200, 300), "Take anything", 30, WHITE)
+        button_weight_rect = rectangle_text((1200, 400), "Max weight", 30, WHITE)
+        button_mana_rect = rectangle_text((1200, 500), "Max mana", 30, WHITE)
+        button_ratio_rect = rectangle_text((1200, 600), "Best ratio mana/weight", 30, WHITE)
+        button_best_rect = rectangle_text((1200, 700), "Best management", 30, WHITE)
 
     while 1:
         # On affiche l'image de la boutique et on l'assombrit
@@ -596,7 +592,7 @@ def shop(shop: int):
                     mouse_down = True
                 elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                     return
-            mouse_pos = pg.mouse.get_pos()
+            mouse_pos = map_to_value(pg.mouse.get_pos()[0], 0, pg.display.get_window_size()[0], 0, 1624), map_to_value(pg.mouse.get_pos()[1], 0, pg.display.get_window_size()[1], 0, 1080)
 
             rectangle_text((1200, 300), "Take anything", 30, GREEN)
             rectangle_text((1200, 400), "Max weight", 30, GREEN)
