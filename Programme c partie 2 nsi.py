@@ -1,6 +1,5 @@
 
 
-
 fournitures_scolaires = \
 [{'Nom' : 'Manuel scolaire', 'Poids' : 0.55, 'Mana' : 11},
 {'Nom' : 'Baguette magique', 'Poids' : 0.085, 'Mana' : 120},
@@ -13,31 +12,74 @@ fournitures_scolaires = \
 {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
 
-def max_mana(fournitures):
 
+
+def remplissage_max(fournitures):
+    
     new_mana = []
-    for element in fournitures :
-            new_mana.append(element)
-
+    for element in fournitures:
+        new_mana.append(element['Mana'])
+    
 
     for i in range (1, len(new_mana)):
         while new_mana[i] < new_mana[i - 1] and i > 0:
+            new_mana[i], new_mana[i - 1] = new_mana[i - 1],new_mana[i]
+            i = i - 1
+        
+
+    poids_total = 0
+    liste_poids = []
+    for element in liste_fournitures:
+        if element == new_mana[i] :
+
+
+    for element in fournitures_scolaires:
+        for poids in liste_poids:
+            if poids == element["Poids"]:
+                malle_max.append(element)
+    
+    return(malle_max)
+
+print(remplissage_max(fournitures_scolaires))
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+'''    
+        while new_mana[i] > new_mana[i - 1] and i > 0:
             new_mana[i], new_mana[i - 1] = new_mana[i - 1], new_mana[i]
             i = i - 1
+    for element in fournitures:
+        if element['Poids'] <= poids_max :
+            new_mana.append(element)
+            poids_max -= element['Poids']
+
+    return new_mana
+        
     
     
-    
-    poids_total = 0
-    liste_du_poids = []
-    for j in new_mana :
-        poids_total += j
-        liste_du_poids.append(element('Poids'))
-        if poids_total > 4:
-            poids_total -= j
-            liste_du_poids.remove(j)
-            break
+malle_finale = max_mana(fournitures_scolaires, 4)
+print(malle_finale)
+
+'''
 
 
+
+
+ 
+        
 
 
 
