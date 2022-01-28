@@ -1,6 +1,3 @@
-
-poids_maximum = 4
-
 fournitures_scolaires = \
 [{'Nom' : 'Manuel scolaire', 'Poids' : 0.55, 'Mana' : 11},
 {'Nom' : 'Baguette magique', 'Poids' : 0.085, 'Mana' : 120},
@@ -13,31 +10,17 @@ fournitures_scolaires = \
 {'Nom' : 'Gants', 'Poids' : 0.6, 'Mana' : 25},
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
 
-def max_mana(fournitures):
-
-    new_mana = []
-    for element in fournitures :
-            new_mana.append(element['Mana'])
 
 
-    for i in range (1, len(new_mana)):
-        while new_mana[i] > new_mana[i - 1] and i > 0:
-            new_mana[i], new_mana[i - 1] = new_mana[i - 1], new_mana[i]
-            i = i - 1
-    
-    
-'''
-    for element in fournitures :
-        poids_maximum = 4    
-        total_poids = []    
-        if poids_maximum >= 0 :
-            total_poids.append(new_mana['Poids'])
-            poids_maximum  -= element['Poids']
-            
-        return total_poids
+for element in fournitures_scolaires:
+    element['Ratio'] = element['Mana'] / element['Poids']
 
-'''
-malle_finale = max_mana(fournitures_scolaires)
-print(malle_finale)
 
- 
+for i in range(len(fournitures_scolaires) - 1):
+    indice_du_mini = i
+    for j in range(i + 1, len(fournitures_scolaires)) :
+        if fournitures_scolaires[j]['Ratio'] < fournitures_scolaires[indice_du_mini]['Ratio']:
+            indice_du_mini = j
+    fournitures_scolaires[i], fournitures_scolaires[indice_du_mini] = fournitures_scolaires[indice_du_mini], fournitures_scolaires[i]
+
+print(fournitures_scolaires)
