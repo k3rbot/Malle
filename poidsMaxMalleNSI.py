@@ -20,8 +20,15 @@ fournitures_scolaires = \
 
 
 
-def remplissage_max(fournitures):
+def remplissage_max(fournitures: list, poids_max: int) -> list:
+    """
+    Remplis une liste avec le plus d'éléments possibles sans que
+    la somme de leurs poids ne dépasse l'entier mis en paramètre.
     
+    Entrée : Une liste de dictionnaires
+    
+    Sortie : Une liste contenant le maximum d'éléments possibles
+    """
     poids_liste = []
     for element in fournitures:
         poids_liste.append(element["Poids"])
@@ -33,16 +40,12 @@ def remplissage_max(fournitures):
                 poids_liste[i]
             i = i - 1
         
-
     somme_poids = 0
     liste_poids = []
-    for i in poids_liste:
-        somme_poids += i
-        liste_poids.append(i)
-        if somme_poids > 4:
-            somme_poids -= i
-            liste_poids.remove(i)
-            break
+    for i in reversed(poids_liste):
+        if somme_poids + i < poids_max:
+            somme_poids += i
+            liste_poids.append(i)
 
     malle_max = []
     for element in fournitures_scolaires:
@@ -52,4 +55,7 @@ def remplissage_max(fournitures):
     
     return(malle_max)
 
-print(remplissage_max(fournitures_scolaires))
+print(remplissage_max(fournitures_scolaires, 4))
+
+
+
