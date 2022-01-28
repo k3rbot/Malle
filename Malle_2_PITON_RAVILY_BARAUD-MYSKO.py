@@ -55,20 +55,6 @@ FPS = 60
 # On définit le titre de la fenêtre
 pg.display.set_caption("Harry Potter se fait la malle au chemin de traverse")
 
-# Fonction nécéssaire à la génération de certaines variables globales
-# nécéssitant un redimensionnage en fonction de l'écran
-def map_to_value(x: int, in_min: int, in_max: int, out_min: int, out_max: int) -> int:
-    """
-    Remappe une valeur dans un intervalle correspondant au même ratio
-    dans l'intervalle d'origine
-
-    Entrée: x: au nombre à mapper
-            in_min: plus betite bordure de l'intervalle original
-            in_max: plus grande bordure de l'intervalle original
-            out_min: plus petite bordure de l'intervalle désiré
-            out_max: plus grande bordure de l'intervalle désiré
-    """
-    return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 # Polygone d'une boutique
 OLLIVANDER_CORDS = (
@@ -82,13 +68,6 @@ OLLIVANDER_CORDS = (
 )
 # La surface sur laquelle on met notre polygone et qui accepte la notion de transparence
 ollivander_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
-# On modifie les coordonnées pour avoir le rectangle pour
-# la détection avec la souris puisque l'écran est de taille variable
-OLLIVANDER_CORDS_MOUSE = []
-for cords in OLLIVANDER_CORDS:
-    OLLIVANDER_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-OLLIVANDER_RECT_MOUSE = pg.draw.polygon(ollivander_poly, (0, 0, 0, 0), OLLIVANDER_CORDS_MOUSE)
-
 # On dessine le polygone créé
 OLLIVANDER_RECT = pg.draw.polygon(ollivander_poly, TRANSPARENT_YELLOW, OLLIVANDER_CORDS)
 
@@ -103,11 +82,6 @@ FLOURISH_AND_BLOTTS_CORDS = (
     (1241, 447)
 )
 flourish_and_blotts_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
-FLOURISH_AND_BLOTTS_CORDS_MOUSE = []
-for cords in FLOURISH_AND_BLOTTS_CORDS:
-    FLOURISH_AND_BLOTTS_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-FLOURISH_AND_BLOTTS_RECT_MOUSE = pg.draw.polygon(flourish_and_blotts_poly, (0, 0, 0, 0), FLOURISH_AND_BLOTTS_CORDS_MOUSE)
-
 FLOURISH_AND_BLOTTS_RECT = pg.draw.polygon(flourish_and_blotts_poly, TRANSPARENT_YELLOW, FLOURISH_AND_BLOTTS_CORDS)
 
 MALKIN_CORDS = (
@@ -121,11 +95,6 @@ MALKIN_CORDS = (
     (373, 777), (338, 802), (317, 803), (307, 809)
 )
 malkin_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
-MALKIN_CORDS_MOUSE = []
-for cords in MALKIN_CORDS:
-    MALKIN_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-MALKIN_RECT_MOUSE = pg.draw.polygon(malkin_poly, (0, 0, 0, 0), MALKIN_CORDS_MOUSE)
-
 MALKIN_RECT = pg.draw.polygon(malkin_poly, TRANSPARENT_YELLOW, MALKIN_CORDS)
 
 TRUNK_CORDS = (
@@ -135,11 +104,6 @@ TRUNK_CORDS = (
     (642, 924), (643, 816), (645, 813), (649, 811)
 )
 trunk_poly = pg.Surface((1624, 1080), flags=pg.SRCALPHA)
-TRUNK_CORDS_MOUSE = []
-for cords in TRUNK_CORDS:
-    TRUNK_CORDS_MOUSE.append([map_to_value(cords[0], 0, 1624, 0, pg.display.get_window_size()[0]), map_to_value(cords[1], 0, 1080, 0, pg.display.get_window_size()[1])])
-TRUNK_RECT_MOUSE = pg.draw.polygon(trunk_poly, (0, 0, 0, 0), TRUNK_CORDS_MOUSE)
-
 TRUNK_RECT = pg.draw.polygon(trunk_poly, TRANSPARENT_YELLOW, TRUNK_CORDS)
 
 
@@ -167,6 +131,20 @@ SCHOLAR_FURNITURES = [
     {'Nom': 'Cape', 'Poids': 1.1, 'Mana': 13}
 ]
 MAX_WEIGHT = 4
+
+
+def map_to_value(x: int, in_min: int, in_max: int, out_min: int, out_max: int) -> int:
+    """
+    Remappe une valeur dans un intervalle correspondant au même ratio
+    dans l'intervalle d'origine
+
+    Entrée: x: au nombre à mapper
+            in_min: plus betite bordure de l'intervalle original
+            in_max: plus grande bordure de l'intervalle original
+            out_min: plus petite bordure de l'intervalle désiré
+            out_max: plus grande bordure de l'intervalle désiré
+    """
+    return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 
 def display_text(text: str, font: list, size: int, color: tuple, x: int, y: int, alignment=1):
@@ -495,12 +473,13 @@ def shop(shop: int):
         money_type = 0
         previous_tests += list(FLOURISH_AND_BLOTTS_TESTS)
     else:
-        x = map_to_value(1200, 0, 1624, 0, pg.display.get_window_size[0])
-        button_anything_rect = rectangle_text((x, map_to_value(300, 0, 1080, 0, pg.display.get_window_size[1])), "Take anything", 30, WHITE)
-        button_weight_rect = rectangle_text((x, map_to_value(400, 0, 1080, 0, pg.display.get_window_size[1])), "Max weight", 30, WHITE)
-        button_mana_rect = rectangle_text((x, map_to_value(500, 0, 1080, 0, pg.display.get_window_size[1])), "Max mana", 30, WHITE)
-        button_ratio_rect = rectangle_text((x, map_to_value(600, 0, 1080, 0, pg.display.get_window_size[1])), "Best ratio mana/weight", 30, WHITE)
-        button_best_rect = rectangle_text((x, map_to_value(700, 0, 1080, 0, pg.display.get_window_size[1])), "Best management", 30, WHITE)
+        x = map_to_value(1200, 0, 1624, 0, pg.display.get_window_size()[0])
+        print(x, pg.display.get_window_size())
+        button_anything_rect = rectangle_text((x, map_to_value(300, 0, 1080, 0, pg.display.get_window_size()[1])), "Take anything", 30, WHITE)
+        button_weight_rect = rectangle_text((x, map_to_value(400, 0, 1080, 0, pg.display.get_window_size()[1])), "Max weight", 30, WHITE)
+        button_mana_rect = rectangle_text((x, map_to_value(500, 0, 1080, 0, pg.display.get_window_size()[1])), "Max mana", 30, WHITE)
+        button_ratio_rect = rectangle_text((x, map_to_value(600, 0, 1080, 0, pg.display.get_window_size()[1])), "Best ratio mana/weight", 30, WHITE)
+        button_best_rect = rectangle_text((x, map_to_value(700, 0, 1080, 0, pg.display.get_window_size()[1])), "Best management", 30, WHITE)
 
     while 1:
         # On affiche l'image de la boutique et on l'assombrit
@@ -647,7 +626,7 @@ def shop(shop: int):
                     trunk_content = brute_force_management(all_possibilities(SCHOLAR_FURNITURES), MAX_WEIGHT)
             display_furnitures(trunk_content)
 
-        frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0] - 100, pg.display.get_window_size()[1] - 66))
+        frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0], pg.display.get_window_size()[1]))
         window.blit(frame, (0, 0))
         pg.display.flip()
         clock.tick(FPS)
@@ -666,23 +645,23 @@ def alley(mouse_pos: tuple, pressed: bool):
     resizable_screen.blit(IMG_MALLE, (600, 750))
     display_text("press esc to exit", Font, 20, WHITE, 10, 0, alignment=0)
     # On surligne le magasin si on a la souris dessus
-    if OLLIVANDER_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+    if OLLIVANDER_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         resizable_screen.blit(ollivander_poly, (0, 0))
         rectangle_text(mouse_pos, "Ollivander", 20, VIOLET)
         # Un bouton de la souris a été pressé
         if pressed:
             shop(1)
-    elif FLOURISH_AND_BLOTTS_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+    elif FLOURISH_AND_BLOTTS_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         resizable_screen.blit(flourish_and_blotts_poly, (0, 0))
         rectangle_text(mouse_pos, "Flourish and Blotts", 20, VIOLET)
         if pressed:
             shop(2)
-    elif MALKIN_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+    elif MALKIN_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         resizable_screen.blit(malkin_poly, (0, 0))
         rectangle_text(mouse_pos, "Madam Malkin's Robes for All Occasions", 20, VIOLET)
         if pressed:
             shop(0)
-    elif TRUNK_RECT_MOUSE.collidepoint(mouse_pos[0], mouse_pos[1]):
+    elif TRUNK_RECT.collidepoint(mouse_pos[0], mouse_pos[1]):
         resizable_screen.blit(trunk_poly, (0, 0))
         rectangle_text(mouse_pos, "Organize Harry's trunk", 20, VIOLET)
         if pressed:
@@ -703,7 +682,8 @@ def main():
             elif event.type == pg.MOUSEBUTTONDOWN:
                 mouse_pressed = True
 
-        alley(pg.mouse.get_pos(), mouse_pressed)
+        mouse_pos = map_to_value(pg.mouse.get_pos()[0], 0, pg.display.get_window_size()[0], 0, 1624), map_to_value(pg.mouse.get_pos()[1], 0, pg.display.get_window_size()[1], 0, 1080)
+        alley(mouse_pos, mouse_pressed)
 
         frame = pg.transform.scale(resizable_screen, (pg.display.get_window_size()[0], pg.display.get_window_size()[1]))
         window.blit(frame, (0, 0))
