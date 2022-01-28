@@ -15,9 +15,10 @@ POIDS_MAXIMUM = 4
 def max_mana(fournitures, poids_max):
     '''
     Entrée : Objets de la table fournitures scolaires
-    Sortie : Objets de la tables fournitures triéq par mana et ne dépassant pas la capacité de poids
+    Sortie : Objets de la tables fournitures triés par mana et ne dépassant pas la capacité de poids
     
     '''
+    #On utilise ici la méthode du tri opitimisé
     liste_objet = []
     for i in range(len(fournitures_scolaires)):
         temp = fournitures_scolaires[i]
