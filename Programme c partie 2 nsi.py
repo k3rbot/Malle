@@ -13,6 +13,11 @@ fournitures_scolaires = \
 {'Nom' : 'Cape', 'Poids' : 1.1, 'Mana' : 13}]
 POIDS_MAXIMUM = 4 
 def max_mana(fournitures, poids_max):
+    '''
+    Entrée : Objets de la table fournitures scolaires
+    Sortie : Objets de la tables fournitures triéq par mana et ne dépassant pas la capacité de poids
+    
+    '''
     liste_objet = []
     for i in range(len(fournitures_scolaires)):
         temp = fournitures_scolaires[i]
@@ -21,14 +26,12 @@ def max_mana(fournitures, poids_max):
             fournitures[indice+1] = fournitures[indice]
             indice -= 1
             fournitures[indice + 1] = temp
-    print(fournitures_scolaires)
-
-
-    for element in fournitures : 
+    
+    for element in fournitures: 
         if element['Poids'] < poids_max:
-            liste_objet.append(fournitures)
+            liste_objet.append(element)
             poids_max -= element['Poids']
-        return liste_objet
+    return liste_objet
 
 nouvelle_malle = max_mana(fournitures_scolaires, POIDS_MAXIMUM)
 print(nouvelle_malle)
@@ -38,8 +41,8 @@ print(nouvelle_malle)
 poids_total = 0
 mana_total= 0
 for element in nouvelle_malle:
-    poids_total += element['Poids']
-    mana_total += element['Mana']
+        poids_total += element['Poids']
+        mana_total += element['Mana']
 print(f'Le poids total de la malle est {poids_total}')
 print(f'Le mana total de la malle est {mana_total}')
 
