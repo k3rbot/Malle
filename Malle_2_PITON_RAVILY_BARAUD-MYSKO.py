@@ -1,4 +1,5 @@
 import os
+from tkinter.tix import MAX
 import pygame as pg
 import ctypes
 
@@ -408,6 +409,37 @@ def brute_force_management(list, max_weight):
     return best
 
 
+def best_ratio_mana_weight(list: list, max_weight: int) -> list:
+    """
+    Calcule le meilleur rapport mana/poids et limite le poids maximal
+
+    Entrée: La liste de fournitures
+    Sortie: La liste des éléments formant le meilleur ratio mana/poids
+    """
+    for element in list:
+        element['Ratio'] = element['Mana'] / element['Poids']
+
+    for i in range(len(list) - 1):
+        indice_du_mini = i
+        for j in range(i + 1, len(list)) :
+            if list[j]['Ratio'] < list[indice_du_mini]['Ratio']:
+                indice_du_mini = j
+        list[i], list[indice_du_mini] = list[indice_du_mini], list[i]
+
+    best_ratio_list = []
+    max_ratio = -1
+    weight = max_weight
+    for elt in reversed(list):
+        mana = 0
+        for elt2 in best_ratio_list:
+            mana += elt2['Mana']
+        if elt['Poids'] < weight and mana/max_weight > max_ratio:
+            weight -= elt['Poids']
+            best_ratio_list.append(elt)
+            max_ratio = mana/max_weight
+    print(best_ratio_list)
+    return best_ratio_list
+
 def messy_management(fournitures, poids_max):
     '''
     Remplis une liste avec les élements pris dans l'ordre dans lequel ils apparaissent dans la liste des fournitures
@@ -649,15 +681,15 @@ def shop(shop: int):
             elif button_weight_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 390), "Max weight", 40, GREEN)
                 if mouse_down:
-                    trunk_content = max_weight_management(SCHOLAR_FURNITURES)
+                    trunk_content = max_weight_management(SCHOLAR_FURNITURES, MAX_WEIGHT)
             elif button_mana_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 490), "Max mana", 40, GREEN)
                 if mouse_down:
-                    print("Mana")
+                    trunk_content = max_mana_management(SCHOLAR_FURNITURES, MAX_WEIGHT)
             elif button_ratio_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 590), "Best ratio mana/weight", 40, GREEN)
                 if mouse_down:
-                    print("Ratio")
+                    trunk_content = best_ratio_mana_weight(SCHOLAR_FURNITURES, MAX_WEIGHT)
             elif button_best_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
                 rectangle_text((1175, 690), "Best management", 40, GREEN)
                 if mouse_down:
