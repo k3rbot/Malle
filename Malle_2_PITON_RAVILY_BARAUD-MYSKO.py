@@ -368,7 +368,7 @@ def display_furnitures(furnitures: list):
         mana += elt["Mana"]
         if i == len(furnitures) - 1:
             display_text(f"Total mana: {mana}", Font, 60, BLUE, 40, 975, alignment=0)
-            display_text(f"Total weight: {weight}", Font, 60, RED, 525, 975, alignment=0)
+            display_text(f"Total weight: {round(weight, 3)}", Font, 60, RED, 525, 975, alignment=0)
 
 
 def brute_force_management(list, max_weight):
