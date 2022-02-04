@@ -1,6 +1,5 @@
 # coding: UTF-8
 import os
-from tkinter.tix import MAX
 import pygame as pg
 import ctypes
 
