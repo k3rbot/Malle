@@ -1,14 +1,12 @@
 # coding: UTF-8
 import os
 import pygame as pg
-import ctypes
-
-# On récupère la taille de l'écran pour faire une fenêtre 
-# qui dépends d'elle
-user32 = ctypes.windll.user32
-SCREENSIZE = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 
 pg.init()
+# On récupère la taille de l'écran pour faire une fenêtre 
+# qui dépends d'elle
+screen_info = pg.display.Info()
+SCREENSIZE = screen_info.current_w, screen_info.current_h
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
 
